@@ -10,6 +10,9 @@ import { AppService } from './app.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { OtpModule } from './otp/otp.module';
 import { OtpRequest } from './otp/entities/otp.entity';
+import { Roles } from './roles/entities/roles.entity';
+import { RoleModule } from './roles/roles.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -24,7 +27,7 @@ import { OtpRequest } from './otp/entities/otp.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User,RefreshToken,OtpRequest],
+        entities: [User,RefreshToken,OtpRequest,Roles],
         synchronize: true, // only for development
       }),
     }),
@@ -40,6 +43,8 @@ import { OtpRequest } from './otp/entities/otp.entity';
     AuthModule,
     UsersModule,
     OtpModule,
+    RoleModule,
+    EventsModule
   ],
   controllers: [AppController],
   providers: [AppService]

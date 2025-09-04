@@ -1,6 +1,5 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { UserRole } from 'src/roles/enums/userRoles.dto';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignUpDto } from './dto/signup.dto';
@@ -13,6 +12,9 @@ import { RefreshToken } from './entities/refresh-token.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { MailerService } from '@nestjs-modules/mailer';
 import { OtpService } from 'src/otp/otp.service';
+import { Roles } from 'src/roles/entities/roles.entity';
+import { RoleServices } from 'src/roles/roles.service';
+import { DefaultRolePermissions } from 'src/roles/dto/permissions.default';
 
 
 @Injectable()
@@ -22,19 +24,22 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
+    @InjectRepository(Roles)
+    private readonly rolesRepository: Repository<Roles>,
     private readonly otpService: OtpService,
     private readonly mailService: MailerService,
     private jwtService: JwtService,
+    private roleService: RoleServices,
     private configService: ConfigService
   ) { }
 
 
-async refreshTokens(refreshToken: string) {
+  async refreshTokens(refreshToken: string) {
     const token = await this.refreshTokenRepository.findOne({
-        where: {
-            token: refreshToken,
-            expiresAt: MoreThanOrEqual(new Date()),
-        },
+      where: {
+        token: refreshToken,
+        expiresAt: MoreThanOrEqual(new Date()),
+      },
     });
 
     if (!token) throw new UnauthorizedException("Token not found");
@@ -43,57 +48,72 @@ async refreshTokens(refreshToken: string) {
     console.log("token: ", token);
 
     return this.generateUserToken(token.userId);
-}
+  }
 
 
 
-async sendOtpMail(email: string) {
-  const otp = this.otpService.generateOtp(email);
-
-  const message = `
+  async sendOtpMail(email: string) {
+    const otp = await this.otpService.generateOtp(email);
+    console.log("auth otp: ", otp)
+    const message = `
     <p>Forgot your password?</p>
     <p>Your OTP is: <b>${otp}</b></p>
     <p>If you didn’t request this, please ignore this email.</p>
   `;
 
-  await this.mailService.sendMail({
-    from: 'TechSphere Ev <techsphereEv@gmail.com>',
-    to: email,
-    subject: 'Your OTP Code',
-    html: message,
-  });
+    await this.mailService.sendMail({
+      from: 'TechSphere Ev <techsphereEv@gmail.com>',
+      to: email,
+      subject: 'Your OTP Code',
+      html: message,
+    });
 
-  return otp; // return OTP so you can save it in DB/Redis for verification
-}
+    return { message: "Otp has been forwarded to your email!" };
+  }
 
 
-async forgotPassword(email){
-  const user = await this.userRepository.findOne({where: {email: email}})
-  if(!user) throw new NotFoundException("User doesnt exist on this email.")
+  async forgotPassword(email) {
+    const user = await this.userRepository.findOne({ where: { email: email } })
+    if (!user) throw new NotFoundException("User doesnt exist on this email.")
+    await this.sendOtpMail(email);
 
-  return user;
-  
-}
+    return { message: "otp shared" };
+  }
 
-async changePassword(oldPassword,newPassword,userId){
-  // const userId = req.userId;
-  const user = await this.userRepository.findOne({where: {id: userId}})
-  if(!user) throw new NotFoundException("User not found")
 
-  const passwordMatch = await bcrypt.compare(oldPassword, user?.password);
-  if(!passwordMatch) throw new UnauthorizedException("Old Password doesnt match");
+  async resetPassword(email: string, otp: string, password: string) {
+    await this.otpService.verifyOtp(email, otp);
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) throw new UnauthorizedException("User doesn't exist.");
 
-  const newHashPassword = await bcrypt.hash(newPassword,10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  user.password = newHashPassword;
+    await this.userRepository.update(
+      { email },
+      { password: hashedPassword }
+    );
 
-  await this.userRepository.save(user);
-  
+    return this.generateUserToken(user.id);
+  }
 
-  return {message: "password changed successfully"};
-  // return true;
+  async changePassword(oldPassword, newPassword, userId) {
+    // const userId = req.userId;
+    const user = await this.userRepository.findOne({ where: { id: userId } })
+    if (!user) throw new NotFoundException("User not found")
 
-}
+    const passwordMatch = await bcrypt.compare(oldPassword, user?.password);
+    if (!passwordMatch) throw new UnauthorizedException("Old Password doesnt match");
+
+    const newHashPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = newHashPassword;
+
+    await this.userRepository.save(user);
+
+
+    return { message: "password changed successfully" };
+
+  }
 
 
   ///generate User Token
@@ -113,7 +133,6 @@ async changePassword(oldPassword,newPassword,userId){
     await this.refreshTokenRepository.save({ token, userId, expiresAt: expiryDate, })
   }
 
-  ///Validating OAuth google 
   async validateOAuthLogin(profile: any, provider: 'google' | 'twitter') {
     const email = profile?.emails?.[0]?.value; // OAuth providers return emails
     let user = await this.userRepository.findOne({ where: { email } });
@@ -137,20 +156,34 @@ async changePassword(oldPassword,newPassword,userId){
   async signUp(signUpDto: SignUpDto) {
     const { name, email, password, role } = signUpDto;
 
-    const existingUser = await this.userRepository.findOne({
-      where: { email: email },
+    // 1. Check if user already exists
+    const existingUser = await this.userRepository.findOne({ where: { email } });
+    if (existingUser) {
+      throw new BadRequestException("Email already exists");
+    }
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    const newRole = await this.roleService.createRole({
+      role: role ?? UserRole.CUSTOMER,
+      permissions: DefaultRolePermissions[role ?? UserRole.CUSTOMER],
     });
 
-    if (existingUser) throw new BadRequestException("Email already exists");
+    const savedRole = await this.rolesRepository.save(newRole);
 
-    const hashPassword = await bcrypt.hash(password, 10);
     const user = this.userRepository.create({
-      name, email, password: hashPassword, role,
-    })
+      name,
+      email,
+      password: hashPassword,
+      role: savedRole,
+    });
     await this.userRepository.save(user);
 
-    return await this.generateUserToken(user.id);
+    return {
+      message: 'user signed up',
+      user: user,
+    };
   }
+
 
   ///Login Function
   async login(loginDto: LoginDto) {
@@ -165,37 +198,31 @@ async changePassword(oldPassword,newPassword,userId){
     if (!passwordMatch) throw new UnauthorizedException('Invalid email or password');
 
     await this.sendOtpMail(email);
-    // const token = await this.generateUserToken(user.id);
+
     return true;
-    // return { token };
   }
+
+
   async verifyLoginOtp(email: string, otp: string) {
-  // Verify OTP using OtpService
-  await this.otpService.verifyOtp(email, otp);
+    await this.otpService.verifyOtp(email, otp);
 
-  // OTP valid → generate JWT
-  const user = await this.userRepository.findOne({ where: { email } });
-  return this.generateUserToken(user?.id);
-}
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) throw new UnauthorizedException("User not found");
 
+    user.isVerified = true;
+    await this.userRepository.save(user);
 
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+    return this.generateUserToken(user.id);
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async getUserPermissions(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } })
+
+    if (!user) throw new BadRequestException();
+
+    const role = await this.roleService.getRoleById(user?.roleId)
+    return role.role;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
 }

@@ -28,6 +28,7 @@ export class OtpService {
   });
 
   await this.otpRepository.save(otpRecord);
+  console.log("otp: " ,otpPlain)
 
   return otpPlain; 
 }

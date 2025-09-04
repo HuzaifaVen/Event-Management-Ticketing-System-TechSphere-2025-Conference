@@ -10,6 +10,8 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { AuthenticationGuard } from '../guards/auth.guard';
 import { OtpModule } from 'src/otp/otp.module';
+import { RoleModule } from '../roles/roles.module';
+import { Roles } from 'src/roles/entities/roles.entity';
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -26,10 +28,12 @@ import { OtpModule } from 'src/otp/otp.module';
         };
       },
     }),
-    TypeOrmModule.forFeature([User,RefreshToken]),
+    TypeOrmModule.forFeature([User,RefreshToken,Roles]),
+    RoleModule,
     OtpModule
   ],
   controllers: [AuthController],
   providers: [AuthService,GoogleStrategy,AuthenticationGuard],
+  exports: [AuthService],
 })
 export class AuthModule {}

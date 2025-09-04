@@ -1,26 +1,30 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-
-export enum UserRole {
-  ORGANIZER = 'organizer',
-  CUSTOMER = 'customer',
-  ADMIN = 'admin',
-}
+import { UserRole } from "../../roles/enums/userRoles.dto";
+import { Column, OneToOne, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Roles } from "src/roles/entities/roles.entity";
+import { JoinColumn } from "typeorm";
 
 
-@Entity({name: 'users'})
+@Entity({ name: 'users' })
 export class User {
-    @PrimaryGeneratedColumn()
-    id: number
+    @PrimaryGeneratedColumn('uuid')
+    id: string
 
     @Column()
     name: string
 
-    @Column({type: 'text', unique: true})
+    @Column({ type: 'text', unique: true })
     email: string
 
-    @Column({type: 'text', nullable: true})
+    @Column({ type: 'text', nullable: true })
     password: string
 
-    @Column({type: 'enum', enum: UserRole, default:UserRole.CUSTOMER})
-    role: UserRole
+    @Column()
+    roleId: string
+
+    @OneToOne(() => Roles, { cascade: true, eager: true, nullable: true  })
+    @JoinColumn({ name: 'roleId' }) 
+    role: Roles | null;
+
+    @Column({ type: 'boolean', default: false })
+    isVerified: boolean
 }

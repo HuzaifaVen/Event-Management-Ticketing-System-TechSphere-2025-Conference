@@ -1,6 +1,6 @@
 import { IsEmail,IsOptional, IsString, MinLength, Matches, IsEnum } from "class-validator"
 import { Transform } from "class-transformer";
-import {UserRole} from '../../users/entities/user.entity'
+import { UserRole } from "../../roles/enums/userRoles.dto";
 
 export class SignUpDto {
     @IsString()

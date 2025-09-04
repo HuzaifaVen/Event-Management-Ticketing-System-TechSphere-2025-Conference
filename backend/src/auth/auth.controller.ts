@@ -11,6 +11,7 @@ import { Res, Req } from '@nestjs/common';
 import { RefreshTokenDto } from './dto/refresh-tokens.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -45,7 +46,12 @@ export class AuthController {
     return this.authService.refreshTokens(refreshTokenDto.refreshToken);
   }
 
-  @Post('verify-otp')
+  @Post('generate-otp')
+  async generateOtp(@Body("email") email: string){
+    return this.authService.sendOtpMail(email)
+  }
+
+  @Post('verify-login-otp')
   async verifyOtp(@Body() body: { email: string; otp: string }) {
     return this.authService.verifyLoginOtp(body.email, body.otp);
   }
@@ -57,32 +63,14 @@ export class AuthController {
     return await this.authService.changePassword(changePasswordDto.oldPassword, changePasswordDto.newPassword,  req.userId);
   }
 
+  @Post('forgot-password')
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto ){
     return await this.authService.forgotPassword(forgotPasswordDto.email);
   }
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Put('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto){
+    return await this.authService.resetPassword(resetPasswordDto.email,resetPasswordDto.otp,resetPasswordDto.password)
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
 }
