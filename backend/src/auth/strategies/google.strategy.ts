@@ -24,6 +24,7 @@ async validate(
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
+    console.log("profile: ",profile)
     // Passport will inject `profile` here AFTER Google consent
     done(null, profile);
   }

@@ -15,6 +15,10 @@ export class User {
     @Column({ type: 'text', unique: true })
     email: string
 
+    @Column({nullable:true})
+    provider: string
+
+
     @Column({ type: 'text', nullable: true })
     password: string
 

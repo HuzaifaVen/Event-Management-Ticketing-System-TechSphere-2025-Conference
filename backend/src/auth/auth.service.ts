@@ -15,7 +15,11 @@ import { OtpService } from 'src/otp/otp.service';
 import { Roles } from 'src/roles/entities/roles.entity';
 import { RoleServices } from 'src/roles/roles.service';
 import { DefaultRolePermissions } from 'src/roles/dto/permissions.default';
-
+import { otpEmailTemplate } from './templates/auth-otp-mail.template';
+import { comparePasswords } from './helpers/password.helper';
+import { OAuthUserProfileDTO } from './dto/Oauth-user-profile.dto';
+import { AuthMessages } from './constants/auth.messages';
+import { AuthErrors } from './constants/auth.errors';
 
 @Injectable()
 export class AuthService {
@@ -42,10 +46,9 @@ export class AuthService {
       },
     });
 
-    if (!token) throw new UnauthorizedException("Token not found");
+    if (!token) throw new UnauthorizedException(AuthErrors.TOKEN_NOT_FOUND);
 
     await this.refreshTokenRepository.remove(token);
-    console.log("token: ", token);
 
     return this.generateUserToken(token.userId);
   }
@@ -54,37 +57,33 @@ export class AuthService {
 
   async sendOtpMail(email: string) {
     const otp = await this.otpService.generateOtp(email);
-    console.log("auth otp: ", otp)
-    const message = `
-    <p>Forgot your password?</p>
-    <p>Your OTP is: <b>${otp}</b></p>
-    <p>If you didn’t request this, please ignore this email.</p>
-  `;
+    
+    const message = otpEmailTemplate(otp);
 
     await this.mailService.sendMail({
-      from: 'TechSphere Ev <techsphereEv@gmail.com>',
+      from:  this.configService.get("MAIL_FROM"),
       to: email,
-      subject: 'Your OTP Code',
+      subject: this.configService.get('MAIL_SUBJECT_OTP'),
       html: message,
     });
 
-    return { message: "Otp has been forwarded to your email!" };
+    return { message: AuthMessages.OTP_FORWARDED_MESSAGE };
   }
 
 
   async forgotPassword(email) {
     const user = await this.userRepository.findOne({ where: { email: email } })
-    if (!user) throw new NotFoundException("User doesnt exist on this email.")
+    if (!user) throw new NotFoundException(AuthErrors.USER_NOT_EXIST)
     await this.sendOtpMail(email);
 
-    return { message: "otp shared" };
+    return { message: AuthMessages.OTP_FORWARDED_MESSAGE };
   }
 
 
   async resetPassword(email: string, otp: string, password: string) {
     await this.otpService.verifyOtp(email, otp);
     const user = await this.userRepository.findOne({ where: { email } });
-    if (!user) throw new UnauthorizedException("User doesn't exist.");
+    if (!user) throw new UnauthorizedException(AuthErrors.USER_NOT_EXIST);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -96,13 +95,14 @@ export class AuthService {
     return this.generateUserToken(user.id);
   }
 
-  async changePassword(oldPassword, newPassword, userId) {
-    // const userId = req.userId;
+  async changePassword(changePasswordDto, userId) {
+    
+    const {oldPassword, newPassword} = changePasswordDto;
     const user = await this.userRepository.findOne({ where: { id: userId } })
-    if (!user) throw new NotFoundException("User not found")
+    if (!user) throw new NotFoundException(AuthErrors.USER_NOT_FOUND)
 
     const passwordMatch = await bcrypt.compare(oldPassword, user?.password);
-    if (!passwordMatch) throw new UnauthorizedException("Old Password doesnt match");
+    if (!passwordMatch) throw new UnauthorizedException(AuthErrors.OLD_PASSWORD_NOT_MATCHED);
 
     const newHashPassword = await bcrypt.hash(newPassword, 10);
 
@@ -111,7 +111,7 @@ export class AuthService {
     await this.userRepository.save(user);
 
 
-    return { message: "password changed successfully" };
+    return { message: AuthMessages.PASSWORD_CHANGED_SUCCESS};
 
   }
 
@@ -133,20 +133,30 @@ export class AuthService {
     await this.refreshTokenRepository.save({ token, userId, expiresAt: expiryDate, })
   }
 
-  async validateOAuthLogin(profile: any, provider: 'google' | 'twitter') {
-    const email = profile?.emails?.[0]?.value; // OAuth providers return emails
+  async validateOAuthLogin(profile: OAuthUserProfileDTO, provider: 'google' | 'twitter',role:any) {
+    console.log("profile: ",profile,provider,role)
+    const email = profile.emails.find(e=> e.verified === true)?.value // OAuth providers return emails
     let user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
+       const newRole = await this.roleService.createRole({
+      role: role ?? UserRole.CUSTOMER,
+      permissions: DefaultRolePermissions[role ?? UserRole.CUSTOMER],
+    });
+        const savedRole = await this.rolesRepository.save(newRole);
       user = this.userRepository.create({
-        name: profile.displayName || profile.username,
+        name: profile.displayName,
         email,
+        provider: provider,
+        role:savedRole
       });
       await this.userRepository.save(user);
     }
 
     const token = this.jwtService.sign(
       { id: user.id },
-      { secret: this.configService.get<string>('JWT_SECRET') },
+      { secret: this.configService.get<string>('JWT_SECRET'),
+        expiresIn: '1h',
+       },
     );
 
     return { user, token };
@@ -159,7 +169,7 @@ export class AuthService {
     // 1. Check if user already exists
     const existingUser = await this.userRepository.findOne({ where: { email } });
     if (existingUser) {
-      throw new BadRequestException("Email already exists");
+      throw new BadRequestException(AuthErrors.EMAIL_ALREADY_EXISTS);
     }
     const hashPassword = await bcrypt.hash(password, 10);
 
@@ -179,7 +189,7 @@ export class AuthService {
     await this.userRepository.save(user);
 
     return {
-      message: 'user signed up',
+      message: AuthMessages.USER_SIGNED_UP,
       user: user,
     };
   }
@@ -192,22 +202,25 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: { email }
     })
-    if (!user) throw new UnauthorizedException('Invalid email or password');
+    if (!user) throw new UnauthorizedException(AuthErrors.INVALID_CREDENTIALS);
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) throw new UnauthorizedException('Invalid email or password');
+    const passwordMatch = await comparePasswords(password, user.password);
+    if (!passwordMatch) throw new UnauthorizedException(AuthErrors.INVALID_CREDENTIALS);
 
     await this.sendOtpMail(email);
 
-    return true;
+    return {
+      message: AuthMessages.USER_LOGGED_IN
+    };
   }
 
 
-  async verifyLoginOtp(email: string, otp: string) {
+  async verifyLoginOtp(verifyLoginDto) {
+    const {email, otp} = verifyLoginDto;
     await this.otpService.verifyOtp(email, otp);
 
     const user = await this.userRepository.findOne({ where: { email } });
-    if (!user) throw new UnauthorizedException("User not found");
+    if (!user) throw new UnauthorizedException(AuthErrors.USER_NOT_FOUND);
 
     user.isVerified = true;
     await this.userRepository.save(user);
@@ -218,7 +231,7 @@ export class AuthService {
   async getUserPermissions(userId: string) {
     const user = await this.userRepository.findOne({ where: { id: userId } })
 
-    if (!user) throw new BadRequestException();
+    if (!user) throw new BadRequestException(AuthErrors.USER_NOT_EXIST);
 
     const role = await this.roleService.getRoleById(user?.roleId)
     return role.role;

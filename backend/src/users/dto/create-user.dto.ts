@@ -2,6 +2,7 @@ import { IsEmail, IsOptional, IsString, MinLength, Matches, IsEnum } from 'class
 import { OneToOne } from 'typeorm';
 import { Roles } from 'src/roles/entities/roles.entity';
 import { JoinColumn } from 'typeorm';
+import { AuthErrors } from 'src/auth/constants/auth.errors';
 
 export class CreateUserDto {
     @IsString()
@@ -12,7 +13,7 @@ export class CreateUserDto {
 
     @IsString()
     @MinLength(8)
-    @Matches(/^(?=.*[0-9])/, { message: "Password should be at least 8 digits long" })
+    @Matches(/^(?=.*[0-9])/, {message: AuthErrors.Validation_PASSWORD})
     password: string
 
     @OneToOne(() => Roles, { cascade: true, eager: true ,nullable:true})

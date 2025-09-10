@@ -12,6 +12,8 @@ import { RefreshTokenDto } from './dto/refresh-tokens.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UserRole } from 'src/roles/enums/userRoles.dto';
+import { VerifyLoginDto } from './dto/verify-login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -20,14 +22,12 @@ export class AuthController {
    @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req) {
-    // Passport will handle the redirect to Google, nothing else here
   }
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req) {
-    // This will only run AFTER Google redirects back
-    return this.authService.validateOAuthLogin(req.user, 'google');
+  async googleAuthRedirect(@Req() req ) {
+    return this.authService.validateOAuthLogin(req.user, 'google',UserRole.CUSTOMER);
   }
 
 
@@ -52,15 +52,15 @@ export class AuthController {
   }
 
   @Post('verify-login-otp')
-  async verifyOtp(@Body() body: { email: string; otp: string }) {
-    return this.authService.verifyLoginOtp(body.email, body.otp);
+  async verifyOtp(@Body() verifyLoginDto: VerifyLoginDto) {
+    return this.authService.verifyLoginOtp(verifyLoginDto);
   }
 
   @UseGuards(AuthenticationGuard)
   @Put('change-password')
   async changePassword(@Body() changePasswordDto: ChangePasswordDto, @Req() req){
     console.log("progress")
-    return await this.authService.changePassword(changePasswordDto.oldPassword, changePasswordDto.newPassword,  req.userId);
+    return await this.authService.changePassword(changePasswordDto,  req.userId);
   }
 
   @Post('forgot-password')
@@ -68,7 +68,7 @@ export class AuthController {
     return await this.authService.forgotPassword(forgotPasswordDto.email);
   }
 
-  @Put('reset-password')
+  @Patch('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto){
     return await this.authService.resetPassword(resetPasswordDto.email,resetPasswordDto.otp,resetPasswordDto.password)
   }

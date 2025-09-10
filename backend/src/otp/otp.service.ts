@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { OtpRequest } from './entities/otp.entity';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
+import { OtpMessages } from './constants/otp.messages';
+import { OtpErrors } from './constants/otp.errors';
 
 @Injectable()
 export class OtpService {
@@ -28,7 +30,6 @@ export class OtpService {
   });
 
   await this.otpRepository.save(otpRecord);
-  console.log("otp: " ,otpPlain)
 
   return otpPlain; 
 }
@@ -37,16 +38,16 @@ export class OtpService {
   async verifyOtp(email: string, otp: string) {
   const otpRecord = await this.otpRepository.findOne({ where: { email } });
 
-  if (!otpRecord) throw new BadRequestException('OTP not found');
-  if (otpRecord.expiresAt < new Date()) throw new BadRequestException('OTP expired');
+  if (!otpRecord) throw new BadRequestException(OtpErrors.OTP_NOT_FOUND);
+  if (otpRecord.expiresAt < new Date()) throw new BadRequestException(OtpErrors.OTP_EXPIRED);
 
   const isMatch = await bcrypt.compare(otp, otpRecord.otp);
-  if (!isMatch) throw new BadRequestException('Invalid OTP');
+  if (!isMatch) throw new BadRequestException(OtpErrors.INVALID_OTP);
 
   otpRecord.verified = true;
   await this.otpRepository.save(otpRecord);
 
-  return { message: 'OTP verified successfully' };
+  return { message: OtpMessages.OTP_VERIFIED };
 }
 
 }

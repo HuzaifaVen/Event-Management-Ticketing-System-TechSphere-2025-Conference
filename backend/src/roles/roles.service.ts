@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { CreateRoleDto } from "./dto/roles.dto";
 import { User } from "src/users/entities/user.entity";
 import { DefaultRolePermissions } from "./dto/permissions.default";
+import { RoleErrors } from "./constants/roles.errors";
 
 @Injectable()
 
@@ -25,20 +26,13 @@ export class RoleServices {
         });
 
         const savedRole = await this.rolesRepository.save(role);
-
-        // const user = await this.userRepo.findOneByOrFail({ id: dto.userId });
-        // user.role = savedRole;
-        // await this.userRepo.save(user);
-
         return savedRole;
     }
 
     async getRoleById(roleId: string) {
         const role = await this.rolesRepository.findOne({ where: { id: roleId } })
-        if (!role) throw new NotFoundException("Role doesnt exist")
+        if (!role) throw new NotFoundException(RoleErrors.ROLE_NOT_EXISTS)
 
         return { role }
     }
-
-
 }

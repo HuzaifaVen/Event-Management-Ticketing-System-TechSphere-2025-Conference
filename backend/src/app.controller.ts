@@ -12,10 +12,9 @@ import { UserRole } from "./roles/enums/userRoles.dto";
 export class AppController{
     constructor(private readonly appService: AppService){}
     
-    @Permissions([{roles:[UserRole.ORGANIZER],resource: Resources.USERS, actions: [Actions.READ]}])
+    @Permissions([{roles:[UserRole.ORGANIZER],resource: Resources.EVENTS, actions: [Actions.WRITE]}])
     @Get()
     someProtectedRoutes(@Req() req){
-        console.log("user id: ", req.userId)
         return {message: "Accessed Resource", userId: req.userId};
     }
 }

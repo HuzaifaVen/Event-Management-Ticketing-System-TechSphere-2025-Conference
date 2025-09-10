@@ -1,6 +1,7 @@
 import { IsEmail,IsOptional, IsString, MinLength, Matches, IsEnum } from "class-validator"
 import { Transform } from "class-transformer";
 import { UserRole } from "../../roles/enums/userRoles.dto";
+import { AuthErrors } from "../constants/auth.errors";
 
 export class SignUpDto {
     @IsString()
@@ -11,11 +12,11 @@ export class SignUpDto {
 
     @IsString()
     @MinLength(8)
-    @Matches(/^(?=.*[0-9])/, { message: "Password should be at least 8 digits long" })
+    @Matches(/^(?=.*[0-9])/, { message: AuthErrors.Validation_PASSWORD })
     password: string
 
      @IsOptional()
-    @IsEnum(UserRole, { message: 'Role must be either ADMIN or USER' })
+    @IsEnum(UserRole, { message: AuthErrors.USER_ROLE_VALIDATION})
     @Transform(({ value }) => value ?? UserRole.CUSTOMER)
     role: UserRole
 }

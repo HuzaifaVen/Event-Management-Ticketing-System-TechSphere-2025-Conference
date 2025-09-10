@@ -6,11 +6,11 @@ export class OtpRequest {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  email: string; // store email instead of userId
+  @Column({ type: 'varchar', length: 100, unique: true })
+  email: string;
 
   @Column()
-  otp: string; // hashed OTP
+  otp: string; 
 
   @Column({ type: 'timestamp' })
   expiresAt: Date;

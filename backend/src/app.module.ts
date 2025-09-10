@@ -13,10 +13,17 @@ import { OtpRequest } from './otp/entities/otp.entity';
 import { Roles } from './roles/entities/roles.entity';
 import { RoleModule } from './roles/roles.module';
 import { EventsModule } from './events/events.module';
+import { Event } from './events/entities/event.entity';
+import { PricingModule } from './pricing/pricing.module';
+import { Pricing } from './pricing/entities/pricing.entity';
+import { TicketsModule } from './tickets/tickets.module';
+import { Ticket } from './tickets/entities/ticket.entity';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    StripeModule.forRootAsync(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -27,7 +34,7 @@ import { EventsModule } from './events/events.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User,RefreshToken,OtpRequest,Roles],
+        entities: [User,RefreshToken,OtpRequest,Roles,Event,Pricing,Ticket],
         synchronize: true, // only for development
       }),
     }),
@@ -44,7 +51,10 @@ import { EventsModule } from './events/events.module';
     UsersModule,
     OtpModule,
     RoleModule,
-    EventsModule
+    EventsModule,
+    PricingModule,
+    TicketsModule,
+    StripeModule
   ],
   controllers: [AppController],
   providers: [AppService]
