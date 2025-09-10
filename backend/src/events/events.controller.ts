@@ -38,7 +38,7 @@ export class EventsController {
   // @Permissions([{ roles: [UserRole.ORGANIZER], resource: Resources.EVENTS, actions: [Actions.READ] }])
   @Get("/:id")
   findOne(@Param("id") id: string, @Req() req: any) {
-    console.log("running from events")
+  
     return this.eventsService.findOne(id, req.userId);
   }
 

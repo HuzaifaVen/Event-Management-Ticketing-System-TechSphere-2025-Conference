@@ -59,7 +59,6 @@ export class AuthController {
   @UseGuards(AuthenticationGuard)
   @Put('change-password')
   async changePassword(@Body() changePasswordDto: ChangePasswordDto, @Req() req){
-    console.log("progress")
     return await this.authService.changePassword(changePasswordDto,  req.userId);
   }
 

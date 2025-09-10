@@ -134,7 +134,6 @@ export class AuthService {
   }
 
   async validateOAuthLogin(profile: OAuthUserProfileDTO, provider: 'google' | 'twitter',role:any) {
-    console.log("profile: ",profile,provider,role)
     const email = profile.emails.find(e=> e.verified === true)?.value // OAuth providers return emails
     let user = await this.userRepository.findOne({ where: { email } });
     if (!user) {

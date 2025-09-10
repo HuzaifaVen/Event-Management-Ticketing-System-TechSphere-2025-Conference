@@ -15,7 +15,6 @@ export class AuthorizationGuard implements CanActivate {
     ) { }
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
-        console.log("working authorization")
 
         if (!request.userId) throw new UnauthorizedException(AuthErrors.USER_NOT_FOUND)
 

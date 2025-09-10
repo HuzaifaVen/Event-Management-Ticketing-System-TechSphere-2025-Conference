@@ -43,7 +43,7 @@ export class EventsService {
 
       return event;
     } catch (e) {
-      console.error("Error creating event:", e);
+
       throw new BadRequestException(EventErrors.FAILED_EVENT_CREATION);
     }
   }
@@ -57,7 +57,6 @@ export class EventsService {
     if (filters.location) where.location = filters.location;
     if (filters.pricing) where.pricing = filters.pricing
 
-    console.log("page: ", page)
     const [events, total] = await this.eventRepository.findAndCount({
       where,
       take: limit,
@@ -110,7 +109,7 @@ export class EventsService {
 
   async remove(id: string, userId: string) {
     const deleteUser = await this.eventRepository.delete({ userId, id })
-    console.log("delete User: ", deleteUser)
+
     if (!deleteUser.affected || deleteUser.affected === 0) {
       throw new BadRequestException(EventErrors.EVENT_NOT_EXIST);
     }

@@ -7,7 +7,6 @@ import { AuthService } from '../auth.service';
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(private authService: AuthService) {
     
-    console.log("GoogleCallback: ",process.env.GOOGLE_CALLBACK_URL)
     super({
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
@@ -24,8 +23,7 @@ async validate(
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
-    console.log("profile: ",profile)
-    // Passport will inject `profile` here AFTER Google consent
+   
     done(null, profile);
   }
 }

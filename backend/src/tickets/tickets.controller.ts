@@ -21,7 +21,7 @@ export class TicketsController {
 
   @Post("/scanned")
   scan(@Body() body:{qrCode:string}){
-    console.log("qrCode: ",body.qrCode)
+   
     return this.ticketsService.scanTicket(body.qrCode);
   }
 
