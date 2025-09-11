@@ -14,19 +14,24 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UserRole } from 'src/roles/enums/userRoles.dto';
 import { VerifyLoginDto } from './dto/verify-login.dto';
+import { Logger } from '@nestjs/common';
+
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
   constructor(private readonly authService: AuthService) { }
 
    @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req) {
+     this.logger.log('Google OAuth initiated');
   }
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req ) {
+    this.logger.log('Google OAuth callback triggered');
     return this.authService.validateOAuthLogin(req.user, 'google',UserRole.CUSTOMER);
   }
 
@@ -57,7 +62,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthenticationGuard)
-  @Put('change-password')
+  @Patch('change-password')
   async changePassword(@Body() changePasswordDto: ChangePasswordDto, @Req() req){
     return await this.authService.changePassword(changePasswordDto,  req.userId);
   }
