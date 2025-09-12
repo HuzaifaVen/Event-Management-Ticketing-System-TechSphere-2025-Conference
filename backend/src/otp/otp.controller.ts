@@ -8,14 +8,14 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 export class OtpController {
   constructor(private readonly otpService: OtpService) {}
 
-  @Post('request')
-  async requestOtp(@Body() dto: RequestOtpDto) {
-    const otp = await this.otpService.generateOtp(dto.email);
-    return { message: 'OTP sent successfully', otp }; // Remove otp in production
-  }
+  // // @Post('request')
+  // async requestOtp(@Body() dto: RequestOtpDto) {
+  //   const otp = await this.otpService.generateOtp(dto.email);
+  //   return { message: 'OTP sent successfully' };
+  // }
 
-  @Post('verify')
-  async verifyOtp(@Body() dto: VerifyOtpDto) {
-    return this.otpService.verifyOtp(dto.email, dto.otp);
-  }
+  // // @Post('verify')
+  // async verifyOtp(@Body() dto: VerifyOtpDto) {
+  //   return this.otpService.verifyOtp(dto.email, dto.otp);
+  // }
 }

@@ -8,11 +8,7 @@ export const DefaultRolePermissions: Record<UserRole, Permission[]> = {
   [UserRole.CUSTOMER]: [
     {
       resource: Resources.EVENTS,
-      actions: [Actions.READ], 
-    },
-    {
-      resource: Resources.EVENTS,
-      actions: [Actions.WRITE], 
+      actions: [Actions.READ,Actions.READ], 
     },
   ],
   [UserRole.ORGANIZER]: [

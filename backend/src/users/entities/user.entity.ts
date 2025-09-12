@@ -31,4 +31,7 @@ export class User {
 
     @Column({ type: 'boolean', default: false })
     isVerified: boolean
+
+    @Column({type:'boolean', default:"false"})
+    isBlocked: boolean
 }

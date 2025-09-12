@@ -19,11 +19,14 @@ import { Pricing } from './pricing/entities/pricing.entity';
 import { TicketsModule } from './tickets/tickets.module';
 import { Ticket } from './tickets/entities/ticket.entity';
 import { StripeModule } from './stripe/stripe.module';
+import { ReminderModule } from './reminder/reminder.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     StripeModule.forRootAsync(),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -54,7 +57,8 @@ import { StripeModule } from './stripe/stripe.module';
     EventsModule,
     PricingModule,
     TicketsModule,
-    StripeModule
+    StripeModule,
+    ReminderModule
   ],
   controllers: [AppController],
   providers: [AppService]

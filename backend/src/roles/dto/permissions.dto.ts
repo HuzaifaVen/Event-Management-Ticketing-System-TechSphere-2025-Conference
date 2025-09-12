@@ -6,8 +6,9 @@ export class Permission{
     @IsEnum(Resources)
     resource: Resources
 
-    @IsEnum(Actions)
-    actions: Actions[]
+    @IsArray()
+  @IsEnum(Actions, { each: true })  
+  actions: Actions[];
 
 }
 

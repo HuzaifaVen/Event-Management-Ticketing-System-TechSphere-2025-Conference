@@ -15,19 +15,26 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UserRole } from 'src/roles/enums/userRoles.dto';
 import { VerifyLoginDto } from './dto/verify-login.dto';
 import { Logger } from '@nestjs/common';
+import { ApiBearerAuth,ApiBody, ApiCreatedResponse, ApiOperation, ApiResponse,ApiTags } from '@nestjs/swagger';
 
-
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
   constructor(private readonly authService: AuthService) { }
 
-   @Get('google')
+
+  //   Google OAuth Login
+  @ApiOperation({ summary: 'Initiate Google OAuth Login' })
+  @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req) {
      this.logger.log('Google OAuth initiated');
   }
 
+  //  Google OAuth Callback
+  @ApiOperation({ summary: 'Google OAuth Callback' })
+  @ApiResponse({ status: 200, description: 'OAuth Login successful' })
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req ) {
@@ -35,46 +42,68 @@ export class AuthController {
     return this.authService.validateOAuthLogin(req.user, 'google',UserRole.CUSTOMER);
   }
 
-
+  
+  // SignUp New User
+  @ApiOperation({summary:"Signing Up new User"})
+  @ApiCreatedResponse({description: "Signed Up", type: SignUpDto})
   @Post('signup')
   signUp(@Body() signUpDto: SignUpDto) {
     return this.authService.signUp(signUpDto);
   }
 
+
+  // Login User
+  @ApiOperation({summary: "Login User"})
+  @ApiCreatedResponse({description:"Logged In", type: LoginDto})
   @Post('login')
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
-  @Post('refresh')
-  async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto){
-    return this.authService.refreshTokens(refreshTokenDto.refreshToken);
-  }
+  // @Post('refresh')
+  // async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto){
+  //   return this.authService.refreshTokens(refreshTokenDto.refreshToken);
+  // }
 
-  @Post('generate-otp')
-  async generateOtp(@Body("email") email: string){
-    return this.authService.sendOtpMail(email)
-  }
+  // @Post('generate-otp')
+  // async generateOtp(@Body("email") email: string){
+  //   return this.authService.sendOtpMail(email)
+  // }
 
+  // Verify OTP After Login
+  @ApiOperation({ summary: 'Verify Login OTP' })
+  @ApiBody({ type: VerifyLoginDto })
   @Post('verify-login-otp')
   async verifyOtp(@Body() verifyLoginDto: VerifyLoginDto) {
     return this.authService.verifyLoginOtp(verifyLoginDto);
   }
 
+  // Change Authenticated User Password
+  @ApiOperation({ summary: 'Change password (Authenticated users only)' })
+  @ApiBearerAuth()
+  @ApiBody({ type: ChangePasswordDto })
   @UseGuards(AuthenticationGuard)
+  @ApiBearerAuth()
   @Patch('change-password')
   async changePassword(@Body() changePasswordDto: ChangePasswordDto, @Req() req){
     return await this.authService.changePassword(changePasswordDto,  req.userId);
   }
 
+
+  // Forget Password Api
+  @ApiOperation({ summary: 'Request password reset link' })
+  @ApiBody({ type: ForgotPasswordDto })
   @Post('forgot-password')
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto ){
-    return await this.authService.forgotPassword(forgotPasswordDto.email);
+    return await this.authService.forgotPassword(forgotPasswordDto);
   }
 
+  // Reset Password Api
+  @ApiOperation({ summary: 'Reset password using token' })
+  @ApiBody({ type: ResetPasswordDto })
   @Patch('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto){
-    return await this.authService.resetPassword(resetPasswordDto.email,resetPasswordDto.otp,resetPasswordDto.password)
+    return await this.authService.resetPassword(resetPasswordDto)
   }
 
 }

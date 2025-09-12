@@ -3,18 +3,18 @@ import { User } from 'src/users/entities/user.entity';
 import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { OneToMany } from 'typeorm';
 import { Pricing } from 'src/pricing/entities/pricing.entity';
-
+import { Ticket } from 'src/tickets/entities/ticket.entity';
 
 @Entity('events')
 export class Event {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column('uuid')
   userId: string
 
   @IsOptional()
-  @ManyToOne(() => User, (user) => user, { eager: true })
+  @ManyToOne(() => User, (user) => user, { eager: false })
   @JoinColumn({ name: 'userId' })
   user: User;
 
@@ -35,5 +35,8 @@ export class Event {
 
   @OneToMany(() => Pricing, (pricing) => pricing.event, { cascade: ['insert', 'update'], eager: true })
   pricings: Pricing[];
+
+  @OneToMany(() => Ticket, (ticket) => ticket.event, { cascade: true })
+  tickets: Ticket[];
 
 }

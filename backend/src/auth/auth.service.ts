@@ -71,7 +71,8 @@ export class AuthService {
   }
 
 
-  async forgotPassword(email) {
+  async forgotPassword(dto) {
+    const {email} = dto;
     const user = await this.userRepository.findOne({ where: { email: email } })
     if (!user) throw new NotFoundException(AuthErrors.USER_NOT_EXIST)
     await this.sendOtpMail(email);
@@ -80,7 +81,8 @@ export class AuthService {
   }
 
 
-  async resetPassword(email: string, otp: string, password: string) {
+  async resetPassword(dto) {
+    const {email,otp,password} = dto;
     await this.otpService.verifyOtp(email, otp);
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) throw new UnauthorizedException(AuthErrors.USER_NOT_EXIST);
@@ -229,10 +231,11 @@ export class AuthService {
 
   async getUserPermissions(userId: string) {
     const user = await this.userRepository.findOne({ where: { id: userId } })
-
+    console.log("user: ",user)
     if (!user) throw new BadRequestException(AuthErrors.USER_NOT_EXIST);
 
     const role = await this.roleService.getRoleById(user?.roleId)
+    console.log("role user: ",role)
     return role.role;
   }
 

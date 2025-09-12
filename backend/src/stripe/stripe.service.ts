@@ -40,9 +40,9 @@ export class StripeService {
   }
 
   async createPaymentIntent(
-    amount: number,
-    currency: string,
+    createPaymentIntent
   ): Promise<Stripe.PaymentIntent> {
+    const { amount, currency } = createPaymentIntent;
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
         amount,
@@ -60,9 +60,9 @@ export class StripeService {
 
   // Subscriptions (Create Subscription)
   async createSubscription(
-    customerId: string,
-    priceId: string,
+    createSubscriptionDto
   ): Promise<Stripe.Subscription> {
+    const { customerId, priceId } = createSubscriptionDto;
     try {
       const subscription = await this.stripe.subscriptions.create({
         customer: customerId,
@@ -78,7 +78,8 @@ export class StripeService {
     }
   }
 
-  async createCustomer(email: string, name: string): Promise<Stripe.Customer> {
+  async createCustomer(dto): Promise<Stripe.Customer> {
+    const {email, name} = dto;
     try {
       const customer = await this.stripe.customers.create({ email, name });
       this.logger.log(`${StripeMessages.CUSTOMER_CREATE_SUCCESS} for ${email}`);
@@ -91,10 +92,9 @@ export class StripeService {
 
   // Product & Pricing Management (Create Product with Price)
   async createProduct(
-    name: string,
-    description: string,
-    price: number,
+    dto
   ): Promise<Stripe.Product> {
+    const {name, description,price} = dto;
     try {
       const product = await this.stripe.products.create({ name, description });
       await this.stripe.prices.create({
@@ -155,7 +155,8 @@ export class StripeService {
     }
   }
 
-  async createPaymentLink(priceId: string): Promise<Stripe.PaymentLink> {
+  async createPaymentLink(dto): Promise<Stripe.PaymentLink> {
+    const {priceId} = dto;
     try {
       const paymentLink = await this.stripe.paymentLinks.create({
         line_items: [{ price: priceId, quantity: 1 }],

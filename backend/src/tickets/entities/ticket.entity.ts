@@ -1,4 +1,9 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { ManyToOne } from "typeorm";
+import { User } from "src/users/entities/user.entity";
+import { Event } from "src/events/entities/event.entity";
+import { JoinColumn } from "typeorm";
+
 
 @Entity("tickets")
 export class Ticket {
@@ -7,9 +12,7 @@ export class Ticket {
 
     @Column()
     userId: string
-
-    @Column()
-    eventId: string
+    
 
     @Column()
     pricingId: string
@@ -17,6 +20,17 @@ export class Ticket {
     @Column({ type: 'varchar', length: 255, unique: true })
     qrCode: string
 
-    @Column({default:false})
+    @Column() // 👈 explicitly add this
+  eventId: string;
+
+  
+    @Column({ default: false })
     isUsed: boolean
+
+     @ManyToOne(() => Event, (event) => event.tickets, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'eventId' }) // creates eventId column automatically
+  event: Event;
+
+    @Column({ default: false })
+    notified: boolean;
 }

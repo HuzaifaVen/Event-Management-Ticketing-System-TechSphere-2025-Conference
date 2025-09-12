@@ -23,13 +23,13 @@ export class PricingService {
     return {message: PricingMessages.PRICING_CREATED_SUCESS}
   }
 
-  findAll() {
-    return `This action returns all pricing`;
-  }
+  // findAll() {
+  //   return `This action returns all pricing`;
+  // }
 
-  findOne(id: number) {
-    return `This action returns a #${id} pricing`;
-  }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} pricing`;
+  // }
 
   update(id: string, updatePricingDto: UpdatePricingDto) {
     return `This action updates a #${id} pricing`;

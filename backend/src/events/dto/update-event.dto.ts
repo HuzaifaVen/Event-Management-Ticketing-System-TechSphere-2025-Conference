@@ -1,13 +1,25 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/swagger';
 import { CreateEventDto } from './create-event.dto';
-import { IsOptional } from 'class-validator';
-import { User } from 'src/users/entities/user.entity';
-import { ManyToOne,JoinColumn } from 'typeorm';
-
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreatePricingDto } from 'src/pricing/dto/create-pricing.dto';
 
 export class UpdateEventDto extends PartialType(CreateEventDto) {
-    @IsOptional()
-      @ManyToOne(() => User, (user) => user, { eager: true })
-      @JoinColumn({ name: 'userId' })
-      user: User;
+  @ApiPropertyOptional({
+    description: "Updated list of pricing tiers (optional)",
+    type: [CreatePricingDto],
+    example: [
+      {
+        tier: "VIP",
+        pricing: 200,
+        maxTickets: 40,
+      },
+    ],
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreatePricingDto)
+  pricings?: CreatePricingDto[];
 }

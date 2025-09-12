@@ -49,13 +49,19 @@ export class EventsService {
   }
 
 
-  async findAll(userId: string, options: { page: number, limit: number, filters: any }) {
-    const { page, limit, filters } = options;
+  async findAllById(id: string | undefined, query) {
+    const {userId, page, limit, filters } = query;
 
-    const where: any = { userId };
+    let where: any = {};
 
-    if (filters.location) where.location = filters.location;
-    if (filters.pricing) where.pricing = filters.pricing
+    if (userId || filters?.location || filters?.pricing) {
+      if (userId) where.userId = userId;
+      else where.userId = id;
+      if (filters?.location) where.location = filters.location;
+      if (filters?.pricing) where.pricing = filters.pricing;
+    } else {
+      where = undefined; 
+    }
 
     const [events, total] = await this.eventRepository.findAndCount({
       where,
@@ -67,33 +73,70 @@ export class EventsService {
     return { events, total, page, limit, totalPages: Math.ceil(total / limit) }
   }
 
-  async findOne(id: string, userId: string) {
-    const event = await this.eventRepository.findOne({ where: { userId, id } })
-    if (!event) throw new NotFoundException(EventErrors.EVENT_NOT_FOUND);
+  async findAll(options: { page: number, limit: number, filters: any }) {
+    const { page, limit, filters } = options;
 
+
+    let where: any = {};
+
+    if (filters?.location || filters?.pricing) {
+      
+      if (filters?.location) where.location = filters.location;
+      if (filters?.pricing) where.pricing = filters.pricing;
+    } else {
+      where = undefined; 
+    }
+    const [events, total] = await this.eventRepository.findAndCount({
+      where,
+      take: limit,
+      skip: (page - 1) * limit,
+    })
+    if (!events) throw new NotFoundException()
+
+    return { events, total, page, limit, totalPages: Math.ceil(total / limit) }
+  }
+
+  async findOne(id: string) {
+    const event = await this.eventRepository.findOne({ where: { id } })
+    console.log("event run: ")
+    if (!event) throw new NotFoundException(EventErrors.EVENT_NOT_FOUND);
+    console.log("event run: ",event)
     return { event }
   }
 
-  async update(id: string, updateEventDto: any) {
-  const event = await this.eventRepository.findOneBy({ id });
+ async update(id: string, updateEventDto: any) {
+  const event = await this.eventRepository.findOne({
+    where: { id },
+    relations: ['pricings'],
+  });
+
   if (!event) throw new NotFoundException(EventErrors.EVENT_NOT_FOUND);
 
-  // 1. Update event scalar fields
+  // 1. Update event fields
   const { pricings, ...eventFields } = updateEventDto;
   Object.assign(event, eventFields);
   await this.eventRepository.save(event);
 
-  // 2. Update pricings if provided
   if (pricings) {
+    const existingPricings = event.pricings;
+
+    const incomingTiers = pricings.map(p => p.tier);
+
+    const toDelete = existingPricings.filter(p => !incomingTiers.includes(p.tier));
+    if (toDelete.length > 0) {
+      await this.pricingRepository.remove(toDelete);
+    }
+
+    // 2️⃣ UPSERT pricings by tier
     for (const p of pricings) {
-      if (p.id) {
-        // update existing pricing
-        await this.pricingRepository.update(p.id, {
+      const existing = existingPricings.find(ep => ep.tier === p.tier);
+
+      if (existing) {
+        await this.pricingRepository.update(existing.id, {
           ...p,
-          eventId: id, // keep relation intact
+          eventId: id,
         });
       } else {
-        // insert new pricing
         await this.pricingRepository.insert({
           ...p,
           eventId: id,
@@ -102,16 +145,17 @@ export class EventsService {
     }
   }
 
-  return { message: EventMessages.EVENT_UPDATED_SUCCESSFULLY};
+  return { message: EventMessages.EVENT_UPDATED_SUCCESSFULLY };
 }
+
 
 
 
   async remove(id: string, userId: string) {
     const deleteUser = await this.eventRepository.delete({ userId, id })
-
     if (!deleteUser.affected || deleteUser.affected === 0) {
       throw new BadRequestException(EventErrors.EVENT_NOT_EXIST);
     }
+    return {message: EventMessages.EVENT_UPDATED_SUCCESSFULLY}
   }
 }

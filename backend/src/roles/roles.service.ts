@@ -29,10 +29,22 @@ export class RoleServices {
         return savedRole;
     }
 
-    async getRoleById(roleId: string) {
+    async getRoleById(roleId: string) { 
+        console.log("role Id in get RoleBy Id: ",roleId)
         const role = await this.rolesRepository.findOne({ where: { id: roleId } })
+        console.log("rolebyId role: ",role)
         if (!role) throw new NotFoundException(RoleErrors.ROLE_NOT_EXISTS)
 
         return { role }
+    }
+
+    async updateRoleById(id:string, dto ){
+        const role = await this.rolesRepository.findOne({where: {id}})
+        if(!role) throw new NotFoundException(RoleErrors.ROLE_NOT_EXISTS)
+
+        role.permissions = dto.permissions;
+        await this.rolesRepository.save(role);
+        return role
+        
     }
 }
