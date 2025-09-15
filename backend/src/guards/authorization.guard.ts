@@ -25,19 +25,15 @@ export class AuthorizationGuard implements CanActivate {
         if (!routePermissions) {
             return true;
         }
-        console.log("request id: ",request?.userId)
 
         try {
             const user = await this.authService.getUserPermissions(request?.userId);
-            console.log("user: ",user)
             const userPermissions = user.permissions;
 
             if (!userPermissions) throw new UnauthorizedException(AuthErrors.USER_PERMISSIONS_NOT_EXISTS);
 
             for (const routePermission of routePermissions) {
-                    console.log(routePermission.roles + "matched" + user.id)
                 if (routePermission.roles && routePermission.roles.includes(user.role)) {
-                    console.log(routePermission + "matched" + user.id)
 
                     const userPermission = userPermissions.find(
                         (perm) => perm.resource === routePermission.resource
@@ -47,7 +43,6 @@ export class AuthorizationGuard implements CanActivate {
                     const allActionsAvailable = routePermission.actions.every(
                         (action) => userPermission.actions.includes(action),
                     )
-                    console.log("matched: ",allActionsAvailable)
 
                     if (!allActionsAvailable) throw new NotFoundException();
 

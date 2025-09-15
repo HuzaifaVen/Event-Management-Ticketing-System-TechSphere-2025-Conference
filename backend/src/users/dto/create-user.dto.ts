@@ -1,48 +1,57 @@
-import { IsEmail, IsOptional, IsString, MinLength, Matches, IsUUID } from "class-validator";
+import { IsEmail, IsOptional, IsString, MinLength, Matches, IsUUID, IsNotEmpty } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { AuthErrors } from "src/auth/constants/auth.errors";
+import { AuthMessages } from "src/auth/constants/auth.messages";
+import { RoleErrors } from "src/roles/constants/roles.errors";
+import { Password } from "src/decorators/password.decorator";
 
 export class CreateUserDto {
   @ApiProperty({
     description: "Full name of the user",
     example: "John Doe",
+    required: true,
   })
-  @IsString()
+  @IsString({ message: AuthErrors.VALID_NAME})
+  @IsNotEmpty({ message: AuthErrors.NAME_IS_REQUIRED })
   name: string;
 
   @ApiProperty({
     description: "User's email address",
     example: "john.doe@example.com",
+    required: true,
   })
-  @IsEmail()
+  @IsEmail({}, { message: AuthMessages.VALID_EMAIL_ADDRESS })
+  @IsNotEmpty({ message: AuthMessages.EMAIL_REQUIRED })
   email: string;
 
   @ApiProperty({
-    description: "Password must be at least 8 characters long and contain at least one number",
+    description: AuthErrors.Validation_PASSWORD,
     example: "MySecurePass123",
+    required: true,
   })
-  @IsString()
-  @MinLength(8)
-  @Matches(/^(?=.*[0-9])/, { message: AuthErrors.Validation_PASSWORD })
+  @IsString({ message:  AuthErrors.PASSWORD_VALID })
+  @MinLength(8, { message: AuthErrors.Validation_PASSWORD })
+  @Password({ message: AuthErrors.Validation_PASSWORD })
+  @IsNotEmpty({ message: AuthErrors.PASSWORD_REQUIRED})
   password: string;
 
   @ApiProperty({
     description: "Role ID assigned to the user",
     example: "dfdeb945-228e-450e-a147-2574f0308967",
-    // required: false,
+    required: false,
     nullable: true,
   })
-  @IsUUID()
+  @IsUUID("4",{ message: RoleErrors.VALID_ROLE })
   @IsOptional()
   roleId?: string;
 
-   @ApiProperty({
+  @ApiProperty({
     description: "URL or file path for the user's profile image",
     example: "/uploads/user123.png",
     required: false,
     nullable: true,
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: AuthErrors.VALID_PROFILE })
   profileImg?: string;
 }

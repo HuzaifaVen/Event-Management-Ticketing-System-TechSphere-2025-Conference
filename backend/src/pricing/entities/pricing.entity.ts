@@ -1,44 +1,40 @@
 import { Event } from "src/events/entities/event.entity";
-import { Column, Entity ,JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Tiers } from "../enums/pricing-tiers.enums";
-import { IsOptional,IsArray } from "class-validator";
-import { ValidateNested } from "class-validator";
-import { Type } from "class-transformer";
-import { CreatePricingDto } from "../dto/create-pricing.dto";
 
 @Entity({ name: "pricings" })
 export class Pricing {
-    @PrimaryGeneratedColumn("uuid")
-    id: string
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-    @Column()
-    eventId: string
+  @Column({ type: "uuid", nullable: false })
+  eventId: string;
 
-    @ManyToOne(() => Event, (event) => event.pricings, { nullable: true, onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'eventId' })
-    event: Event | null;
+  @ManyToOne(() => Event, (event) => event.pricings, { nullable: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "eventId" })
+  event?: Event | null;
 
-    @Column({ type: "enum", enum: Tiers, default: Tiers.STUDENTS })
-    tier: Tiers
+  @Column({ type: "enum", enum: Tiers, default: Tiers.STUDENTS, nullable: false })
+  tier: Tiers;
 
-    @Column()
-    pricing: number
+  @Column({ type: "decimal", nullable: false })
+  pricing: number;
 
-    @Column()
-    maxTickets: number
+  @Column({ type: "int", nullable: false })
+  maxTickets: number;
 
-    @Column({ default: 0 })
-    soldTickets: number
+  @Column({ type: "int", default: 0, nullable: false })
+  soldTickets: number;
 
-    @Column({ type: 'decimal', nullable: true })
-    discountPercentage?: number;
+  @Column({ type: "decimal", nullable: true })
+  discountPercentage?: number;
 
-    @Column({ type: 'varchar', length: 100, nullable: true })
-    discountName?: string;
+  @Column({ type: "varchar", length: 100, nullable: true })
+  discountName?: string;
 
-    @Column({ type: 'timestamptz', nullable: true })
-    discountStartDate?: Date;
+  @Column({ type: "timestamptz", nullable: true })
+  discountStartDate?: Date;
 
-    @Column({ type: 'timestamptz', nullable: true })
-    discountEndDate?: Date;
+  @Column({ type: "timestamptz", nullable: true })
+  discountEndDate?: Date;
 }

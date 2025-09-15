@@ -1,12 +1,11 @@
-import { ValidateNested } from "class-validator";
+import { ValidateNested, IsOptional, IsArray, IsNotEmpty } from "class-validator";
 import { Type } from "class-transformer";
 import { Permission } from "./permissions.dto";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { RoleErrors } from "../constants/roles.errors";
 
 export class UpdateRoleDto {
-
-
-    @ApiProperty({
+  @ApiPropertyOptional({
     description: "Updated list of permissions for the role",
     type: [Permission],
     example: [
@@ -14,7 +13,10 @@ export class UpdateRoleDto {
       { actions: ["write"], resource: "events" },
     ],
   })
+  @IsOptional()
+  @IsArray({ message: RoleErrors.VALID_PERMISSIONS})
   @ValidateNested({ each: true })
   @Type(() => Permission)
-  permissions: Permission[];
+  @IsNotEmpty({ message: RoleErrors.PERMISSIONS_REQUIRED })
+  permissions?: Permission[];
 }

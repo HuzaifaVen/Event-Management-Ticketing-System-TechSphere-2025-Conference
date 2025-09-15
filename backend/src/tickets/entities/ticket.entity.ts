@@ -1,36 +1,30 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { ManyToOne } from "typeorm";
-import { User } from "src/users/entities/user.entity";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
 import { Event } from "src/events/entities/event.entity";
-import { JoinColumn } from "typeorm";
-
 
 @Entity("tickets")
 export class Ticket {
-    @PrimaryGeneratedColumn('uuid')
-    id: string
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-    @Column()
-    userId: string
-    
+  @Column({ type: "uuid", nullable: false })
+  userId: string;
 
-    @Column()
-    pricingId: string
+  @Column({ type: "uuid", nullable: false })
+  pricingId: string;
 
-    @Column({ type: 'varchar', length: 255, unique: true })
-    qrCode: string
+  @Column({ type: "varchar", length: 255, unique: true, nullable: false })
+  qrCode: string;
 
-    @Column() // 👈 explicitly add this
+  @Column({ type: "uuid", nullable: false })
   eventId: string;
 
-  
-    @Column({ default: false })
-    isUsed: boolean
+  @Column({ type: "boolean", default: false, nullable: false })
+  isUsed: boolean;
 
-     @ManyToOne(() => Event, (event) => event.tickets, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'eventId' }) // creates eventId column automatically
+  @Column({ type: "boolean", default: false, nullable: false })
+  notified: boolean;
+
+  @ManyToOne(() => Event, (event) => event.tickets, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "eventId" })
   event: Event;
-
-    @Column({ default: false })
-    notified: boolean;
 }

@@ -30,9 +30,7 @@ export class RoleServices {
     }
 
     async getRoleById(roleId: string) { 
-        console.log("role Id in get RoleBy Id: ",roleId)
         const role = await this.rolesRepository.findOne({ where: { id: roleId } })
-        console.log("rolebyId role: ",role)
         if (!role) throw new NotFoundException(RoleErrors.ROLE_NOT_EXISTS)
 
         return { role }

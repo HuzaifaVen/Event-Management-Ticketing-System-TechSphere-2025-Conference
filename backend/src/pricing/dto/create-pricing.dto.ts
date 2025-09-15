@@ -1,30 +1,35 @@
-import { IsUUID, IsEnum, IsNumber, Min, IsOptional, IsString, IsDateString } from "class-validator";
+import { IsEnum, IsNumber, Min, IsOptional, IsString, IsDateString, IsNotEmpty } from "class-validator";
 import { Tiers } from "../enums/pricing-tiers.enums";
 import { ApiProperty } from "@nestjs/swagger";
+import { PricingErrors } from "../constants/pricing.errors"; // create this file for centralized error messages
 
 export class CreatePricingDto {
   @ApiProperty({
     description: "Tier of pricing",
     enum: Tiers,
     example: Tiers.STUDENTS,
+    required: true,
   })
-  @IsEnum(Tiers)
+  @IsEnum(Tiers, { message: PricingErrors.VALID_TIER })
+  @IsNotEmpty({ message: PricingErrors.REQUIRED_TIER })
   tier: Tiers;
 
   @ApiProperty({
     description: "Price for this tier",
     example: 50,
+    required: true,
   })
-  @IsNumber()
-  @Min(0)
+  @IsNumber({}, { message: PricingErrors.VALID_PRICING })
+  @Min(0, { message: PricingErrors.MIN_PRICING })
   pricing: number;
 
   @ApiProperty({
     description: "Maximum number of tickets available for this tier",
     example: 100,
+    required: true,
   })
-  @IsNumber()
-  @Min(1)
+  @IsNumber({}, { message: PricingErrors.VALID_MAX_TICKETS })
+  @Min(1, { message: PricingErrors.MIN_MAX_TICKETS })
   maxTickets: number;
 
   @ApiProperty({
@@ -33,8 +38,8 @@ export class CreatePricingDto {
     required: false,
   })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber({}, { message: PricingErrors.VALID_SOLD_TICKETS })
+  @Min(0, { message: PricingErrors.MIN_SOLD_TICKETS })
   soldTickets?: number;
 
   @ApiProperty({
@@ -43,8 +48,8 @@ export class CreatePricingDto {
     required: false,
   })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber({}, { message: PricingErrors.VALID_DISCOUNT_PERCENTAGE })
+  @Min(0, { message: PricingErrors.MIN_DISCOUNT_PERCENTAGE })
   discountPercentage?: number;
 
   @ApiProperty({
@@ -53,7 +58,7 @@ export class CreatePricingDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: PricingErrors.VALID_DISCOUNT_NAME })
   discountName?: string;
 
   @ApiProperty({
@@ -62,7 +67,7 @@ export class CreatePricingDto {
     required: false,
   })
   @IsOptional()
-  @IsDateString()
+  @IsDateString({}, { message: PricingErrors.VALID_DISCOUNT_START_DATE })
   discountStartDate?: Date;
 
   @ApiProperty({
@@ -71,6 +76,6 @@ export class CreatePricingDto {
     required: false,
   })
   @IsOptional()
-  @IsDateString()
+  @IsDateString({}, { message: PricingErrors.VALID_DISCOUNT_END_DATE })
   discountEndDate?: Date;
 }

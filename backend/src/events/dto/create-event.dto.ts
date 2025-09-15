@@ -1,51 +1,65 @@
-import { IsDate, IsString, IsOptional, IsArray, ValidateNested } from "class-validator";
+import { IsDate, IsString, IsOptional, IsArray, ValidateNested, IsNotEmpty } from "class-validator";
 import { Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 import { CreatePricingDto } from "src/pricing/dto/create-pricing.dto";
 import { Tiers } from "src/pricing/enums/pricing-tiers.enums";
+import { EventErrors } from "../constants/event.errors";
 
 export class CreateEventDto {
   @ApiProperty({
     description: "Title of the event",
     example: "AI Confer 2025",
+    required: true,
   })
-  @IsString()
+  @IsString({ message: EventErrors.VALID_TITLE})
+  @IsNotEmpty({ message: EventErrors.REQUIRED_TITLE })
   title: string;
 
   @ApiProperty({
     description: "Description of the event",
     example: "An exciting tech conference about AI and cloud computing.",
+    required: true,
   })
-  @IsString()
+  @IsString({ message: EventErrors.VALID_DESCRIPTION })
+  @IsNotEmpty({ message: EventErrors.REQUIRED_DESCRIPTION })
   description: string;
 
   @ApiProperty({
     description: "Start date and time of the event (ISO string)",
     example: "2025-09-15T09:00:00.000Z",
+    required: true,
   })
   @Type(() => Date)
-  @IsDate()
+  @IsDate({ message: EventErrors.VALID_START_DATE})
   startDateTime: Date;
 
   @ApiProperty({
     description: "End date and time of the event (ISO string)",
     example: "2025-09-15T18:00:00.000Z",
+    required: true,
   })
   @Type(() => Date)
-  @IsDate()
+  @IsDate({ message: EventErrors.VALID_END_DATE })
   endDateTime: Date;
 
-  
+  @ApiProperty({
+    description: "User ID of the event creator",
+    example: "248bd4f0-a0e2-4b4c-a503-6ec3b6cedfda",
+    required: false,
+  })
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: EventErrors.VALID_USERID })
   userId?: string;
 
   @ApiProperty({
     description: "Location of the event",
     example: "123 Main Street, Cityville",
+    required: true,
   })
-  @IsString()
+  @IsString({ message: EventErrors.VALID_LOCATION
+   })
+  @IsNotEmpty({ message: EventErrors.REQUIRED_LOCATION })
   location: string;
 
   @ApiProperty({
@@ -71,7 +85,7 @@ export class CreateEventDto {
     ],
   })
   @IsOptional()
-  @IsArray()
+  @IsArray({ message: EventErrors.VALID_PRICING })
   @ValidateNested({ each: true })
   @Type(() => CreatePricingDto)
   pricings?: CreatePricingDto[];

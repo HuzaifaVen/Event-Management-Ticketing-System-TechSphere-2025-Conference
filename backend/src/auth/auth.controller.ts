@@ -23,6 +23,9 @@ import { UploadedFile } from '@nestjs/common';
 import { diskStorage } from 'multer';
 import { join, extname } from 'path';
 import { baseMulterOptions } from '../../multer.config';
+import { ReqUser } from './dto/req-user.decorator';
+import { OAuthUserProfileDto } from './dto/Oauth-user-profile.dto';
+
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -44,10 +47,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'OAuth Login successful' })
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req ) {
-    this.logger.log('Google OAuth callback triggered');
-    return this.authService.validateOAuthLogin(req.user, 'google',UserRole.CUSTOMER);
-  }
+  async googleAuthRedirect(@ReqUser(OAuthUserProfileDto) profile: OAuthUserProfileDto) {
+  this.logger.log('Google OAuth callback triggered');
+  return this.authService.validateOAuthLogin(profile, profile.provider, UserRole.CUSTOMER);
+}
 
   
   // SignUp New User
@@ -69,7 +72,6 @@ export class AuthController {
 }))
   signUp(@Body() signUpDto: SignUpDto,@UploadedFile() file: Express.Multer.File,) {
     const imagePath = file ? `/uploads/${file.filename}` : undefined; 
-    console.log("image Path: ",file)
     return this.authService.signUp(signUpDto,imagePath);
   }
 
@@ -115,7 +117,7 @@ export class AuthController {
   // Forget Password Api
   @ApiOperation({ summary: 'Request password reset link' })
   @ApiBody({ type: ForgotPasswordDto })
-  @Post('forgot-password')
+  @Patch('forgot-password')
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto ){
     return await this.authService.forgotPassword(forgotPasswordDto);
   }

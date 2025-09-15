@@ -14,6 +14,7 @@ import { NotFoundError } from 'rxjs';
 import { AuthErrors } from 'src/auth/constants/auth.errors';
 import * as dotenv from 'dotenv';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 
 dotenv.config();
 @Injectable()
@@ -28,13 +29,14 @@ export class ReminderService {
     @InjectRepository(User)
   private readonly userRepo: Repository<User>, 
       private readonly mailService: MailerService,
+      private readonly configService: ConfigService
   ) {}
 
   // ✅ Run every day at 9 AM
  @Cron('0 9 * * *')
   async sendEventReminders() {
     this.logger.log('Running daily event reminder job...');
-    console.log("running")
+
     // tomorrow's date range
     const tomorrow = addDays(new Date(), 1);
     const from = startOfDay(tomorrow);
@@ -47,7 +49,6 @@ export class ReminderService {
       },
       relations: ['tickets'],
     });
-    console.log("event: ",events)
 
     if (!events.length) {
       this.logger.log('No events found for tomorrow.');
@@ -56,12 +57,11 @@ export class ReminderService {
 
     for (const event of events) {
       const tickets = await this.ticketRepo.find({where:{event:{id: event.id}}})
-      console.log(tickets)
+
       for (const ticket of tickets) {
         if (ticket.notified) continue; // already notified
 
         const user = await this.userRepo.findOne({where:{id:ticket.userId}})
-        console.log("user: ",user?.id)
         if(!user) throw new NotFoundException(AuthErrors.USER_NOT_FOUND);
 
         await this.sendEmail(user.email, event);
@@ -77,10 +77,9 @@ export class ReminderService {
   }
 
   private async sendEmail(email: string, event: Event) {
-    console.log("sending email: ",email)
     
     await this.mailService.sendMail({
-      from: '"Event Reminder" <no-reply@yourapp.com>',
+      from: this.configService.get("MAIL_FROM"),
       to: email,
       subject: `Reminder: ${event.title} is happening tomorrow!`,
       text: `Hi, don't forget! ${event.title} starts at ${event.startDateTime.toLocaleString()}.`,

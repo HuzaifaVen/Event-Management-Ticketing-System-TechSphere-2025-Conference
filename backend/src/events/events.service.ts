@@ -98,9 +98,7 @@ export class EventsService {
 
   async findOne(id: string) {
     const event = await this.eventRepository.findOne({ where: { id } })
-    console.log("event run: ")
     if (!event) throw new NotFoundException(EventErrors.EVENT_NOT_FOUND);
-    console.log("event run: ",event)
     return { event }
   }
 

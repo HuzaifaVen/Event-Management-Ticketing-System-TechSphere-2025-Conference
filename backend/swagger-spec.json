@@ -334,7 +334,7 @@
       }
     },
     "/auth/forgot-password": {
-      "post": {
+      "patch": {
         "operationId": "AuthController_forgotPassword",
         "parameters": [],
         "requestBody": {
@@ -348,7 +348,7 @@
           }
         },
         "responses": {
-          "201": {
+          "200": {
             "description": ""
           }
         },
@@ -987,23 +987,98 @@
     "schemas": {
       "CreatePaymentIntentDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "Amount for the payment intent",
+            "example": 150
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency for the payment intent",
+            "example": "USD"
+          }
+        },
+        "required": [
+          "amount",
+          "currency"
+        ]
       },
       "CreateSubscriptionDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "description": "ID of the customer subscribing",
+            "example": "f6aab3a8-31fe-466c-92ed-92ac5f7d96e2"
+          },
+          "priceId": {
+            "type": "string",
+            "description": "ID of the pricing tier for the subscription",
+            "example": "30931e6f-b36e-4e3b-a10f-8d76024c8d67"
+          }
+        },
+        "required": [
+          "customerId",
+          "priceId"
+        ]
       },
       "CreateCustomerDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address of the customer",
+            "example": "abdullah12@gmail.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "Full name of the customer",
+            "example": "Abdullah Ahmed"
+          }
+        },
+        "required": [
+          "email",
+          "name"
+        ]
       },
       "CreateProductDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the product",
+            "example": "AI Conference Ticket"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the product",
+            "example": "Access to AI Conference 2025 sessions"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price of the product",
+            "example": 150
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "price"
+        ]
       },
       "CreatePaymentLinkDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "priceId": {
+            "type": "string",
+            "description": "ID of the pricing tier for which to create the payment link",
+            "example": "30931e6f-b36e-4e3b-a10f-8d76024c8d67"
+          }
+        },
+        "required": [
+          "priceId"
+        ]
       },
       "SignUpDto": {
         "type": "object",
@@ -1025,7 +1100,7 @@
           },
           "password": {
             "type": "string",
-            "description": "Password should be atleast 8 digits long",
+            "description": "Password should be atleast 8 digits long, including 1 number, 1 special character and 1 capital letter",
             "minLength": 8,
             "example": "StrongPass123"
           },
@@ -1043,8 +1118,7 @@
         "required": [
           "name",
           "email",
-          "password",
-          "role"
+          "password"
         ]
       },
       "LoginDto": {
@@ -1052,11 +1126,13 @@
         "properties": {
           "email": {
             "type": "string",
-            "description": "abdullah12@gmail.com"
+            "description": "Email of the user",
+            "example": "abdullah12@gmail.com"
           },
           "password": {
             "type": "string",
-            "description": "plaw12!@"
+            "description": "Password of the user",
+            "example": "plaw12!@"
           }
         },
         "required": [
@@ -1069,11 +1145,13 @@
         "properties": {
           "email": {
             "type": "string",
-            "description": "Enter Email: "
+            "description": "Enter Email",
+            "example": "abdullah12@gmail.com"
           },
           "otp": {
             "type": "string",
-            "description": "Enter OTP: "
+            "description": "Enter OTP",
+            "example": "123456"
           }
         },
         "required": [
@@ -1086,11 +1164,11 @@
         "properties": {
           "oldPassword": {
             "type": "string",
-            "description": "Enter old Password: "
+            "description": "Enter old password"
           },
           "newPassword": {
             "type": "string",
-            "description": "Ënter New Password: "
+            "description": "Enter new password"
           }
         },
         "required": [
@@ -1103,7 +1181,8 @@
         "properties": {
           "email": {
             "type": "string",
-            "description": "abdullah12@gmail.com"
+            "description": "Email of the user requesting password reset",
+            "example": "abdullah12@gmail.com"
           }
         },
         "required": [
@@ -1115,15 +1194,18 @@
         "properties": {
           "email": {
             "type": "string",
-            "description": "abdullah12@gmail.com"
+            "description": "Email of the user resetting password",
+            "example": "abdullah12@gmail.com"
           },
           "otp": {
             "type": "string",
-            "description": "232423"
+            "description": "OTP code sent to the user",
+            "example": "232423"
           },
           "password": {
             "type": "string",
-            "description": "plaw12!@"
+            "description": "New password for the user",
+            "example": "plaw12!@"
           }
         },
         "required": [
@@ -1137,7 +1219,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Role Id for the user",
+            "description": "Role ID for the user",
             "example": "f9f0b7f3-f332-4246-8460-ae7b6491e40f"
           }
         },
@@ -1147,7 +1229,34 @@
       },
       "Permission": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "resource": {
+            "type": "string",
+            "description": "Resource for which the permission applies",
+            "enum": [
+              "users",
+              "events",
+              "organizer"
+            ]
+          },
+          "actions": {
+            "type": "array",
+            "description": "List of allowed actions on the resource",
+            "items": {
+              "type": "string",
+              "enum": [
+                "read",
+                "write",
+                "update",
+                "delete"
+              ]
+            }
+          }
+        },
+        "required": [
+          "resource",
+          "actions"
+        ]
       },
       "UpdateRoleDto": {
         "type": "object",
@@ -1173,10 +1282,7 @@
               "$ref": "#/components/schemas/Permission"
             }
           }
-        },
-        "required": [
-          "permissions"
-        ]
+        }
       },
       "CreateUserDto": {
         "type": "object",
@@ -1193,7 +1299,7 @@
           },
           "password": {
             "type": "string",
-            "description": "Password must be at least 8 characters long and contain at least one number",
+            "description": "Password should be atleast 8 digits long, including 1 number, 1 special character and 1 capital letter",
             "example": "MySecurePass123"
           },
           "roleId": {
@@ -1212,8 +1318,7 @@
         "required": [
           "name",
           "email",
-          "password",
-          "roleId"
+          "password"
         ]
       },
       "CreatePricingDto": {
@@ -1298,6 +1403,11 @@
             "description": "End date and time of the event (ISO string)",
             "example": "2025-09-15T18:00:00.000Z"
           },
+          "userId": {
+            "type": "string",
+            "description": "User ID of the event creator",
+            "example": "248bd4f0-a0e2-4b4c-a503-6ec3b6cedfda"
+          },
           "location": {
             "type": "string",
             "description": "Location of the event",
@@ -1361,6 +1471,11 @@
             "description": "End date and time of the event (ISO string)",
             "example": "2025-09-15T18:00:00.000Z"
           },
+          "userId": {
+            "type": "string",
+            "description": "User ID of the event creator",
+            "example": "248bd4f0-a0e2-4b4c-a503-6ec3b6cedfda"
+          },
           "location": {
             "type": "string",
             "description": "Location of the event",
@@ -1387,12 +1502,12 @@
         "properties": {
           "eventId": {
             "type": "string",
-            "description": "Event ID: ",
+            "description": "Event ID",
             "example": "248bd4f0-a0e2-4b4c-a503-6ec3b6cedfda"
           },
           "pricingId": {
             "type": "string",
-            "description": "Pricing Tier Id: ",
+            "description": "Pricing Tier ID",
             "example": "30931e6f-b36e-4e3b-a10f-8d76024c8d67"
           }
         },

@@ -102,7 +102,6 @@ export class EventsController {
   @Permissions([{ roles: [UserRole.ORGANIZER,UserRole.ADMIN], resource: Resources.EVENTS, actions: [Actions.DELETE] }])
   @Delete("/delete/:id")
   delete(@Param('id') id: string, @Req() req: any) {
-    console.log("running")
     return this.eventsService.remove(id, req.userId)
   }
 

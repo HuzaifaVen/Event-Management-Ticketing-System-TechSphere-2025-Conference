@@ -16,8 +16,8 @@ import { Roles } from 'src/roles/entities/roles.entity';
 import { RoleServices } from 'src/roles/roles.service';
 import { DefaultRolePermissions } from 'src/roles/dto/permissions.default';
 import { otpEmailTemplate } from './templates/auth-otp-mail.template';
-import { comparePasswords } from './helpers/password.helper';
-import { OAuthUserProfileDTO } from './dto/Oauth-user-profile.dto';
+import { comparePasswords } from '../../helpers/password.helper';
+import { OAuthUserProfileDto } from './dto/Oauth-user-profile.dto';
 import { AuthMessages } from './constants/auth.messages';
 import { AuthErrors } from './constants/auth.errors';
 
@@ -103,7 +103,7 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { id: userId } })
     if (!user) throw new NotFoundException(AuthErrors.USER_NOT_FOUND)
 
-    const passwordMatch = await bcrypt.compare(oldPassword, user?.password);
+    const passwordMatch = await comparePasswords(oldPassword, user?.password);
     if (!passwordMatch) throw new UnauthorizedException(AuthErrors.OLD_PASSWORD_NOT_MATCHED);
 
     const newHashPassword = await bcrypt.hash(newPassword, 10);
@@ -135,7 +135,7 @@ export class AuthService {
     await this.refreshTokenRepository.save({ token, userId, expiresAt: expiryDate, })
   }
 
-  async validateOAuthLogin(profile: OAuthUserProfileDTO, provider: 'google' | 'twitter',role:any) {
+  async validateOAuthLogin(profile: OAuthUserProfileDto, provider: 'google' | 'twitter',role:any) {
     const email = profile.emails.find(e=> e.verified === true)?.value // OAuth providers return emails
     let user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
@@ -232,11 +232,9 @@ export class AuthService {
 
   async getUserPermissions(userId: string) {
     const user = await this.userRepository.findOne({ where: { id: userId } })
-    console.log("user: ",user)
     if (!user) throw new BadRequestException(AuthErrors.USER_NOT_EXIST);
 
     const role = await this.roleService.getRoleById(user?.roleId)
-    console.log("role user: ",role)
     return role.role;
   }
 
