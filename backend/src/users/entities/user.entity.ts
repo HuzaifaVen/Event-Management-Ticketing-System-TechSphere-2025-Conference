@@ -34,4 +34,7 @@ export class User {
 
     @Column({type:'boolean', default:"false"})
     isBlocked: boolean
+
+    @Column({ type: 'text', nullable: true })
+    profileImg: string | null;
 }

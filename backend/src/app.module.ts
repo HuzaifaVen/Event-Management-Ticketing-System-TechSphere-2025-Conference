@@ -21,6 +21,9 @@ import { Ticket } from './tickets/entities/ticket.entity';
 import { StripeModule } from './stripe/stripe.module';
 import { ReminderModule } from './reminder/reminder.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MulterModule } from '@nestjs/platform-express';
+import {diskStorage} from "multer";
+import { extname, join } from 'path';
 
 @Module({
   imports: [
@@ -49,6 +52,26 @@ import { ScheduleModule } from '@nestjs/schedule';
           pass: process.env.EMAIL_PASSWORD,
         }
       }
+    }),
+    MulterModule.register({
+          storage: diskStorage({
+            destination: join(process.cwd(), 'uploads'), 
+            filename: (req, file, cb) => {
+              const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+              const ext = extname(file.originalname);
+              cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`); 
+            },
+          }),
+          // Optional: Add file filters for image types
+          fileFilter: (req, file, cb) => {
+            if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+              return cb(new Error('Only image files are allowed!'), false);
+            }
+            cb(null, true);
+          },
+          limits: {
+            fileSize: 1024 * 1024 * 5,
+          },
     }),
     AuthModule,
     UsersModule,

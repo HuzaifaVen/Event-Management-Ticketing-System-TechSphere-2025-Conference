@@ -218,7 +218,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "$ref": "#/components/schemas/SignUpDto"
               }
@@ -1018,6 +1018,11 @@
             "description": "User's email address (must be unique)",
             "example": "abdullah12@gmail.com"
           },
+          "profileImg": {
+            "type": "string",
+            "format": "binary",
+            "description": "Profile image file"
+          },
           "password": {
             "type": "string",
             "description": "Password should be atleast 8 digits long",
@@ -1195,6 +1200,12 @@
             "type": "string",
             "description": "Role ID assigned to the user",
             "example": "dfdeb945-228e-450e-a147-2574f0308967",
+            "nullable": true
+          },
+          "profileImg": {
+            "type": "string",
+            "description": "URL or file path for the user's profile image",
+            "example": "/uploads/user123.png",
             "nullable": true
           }
         },

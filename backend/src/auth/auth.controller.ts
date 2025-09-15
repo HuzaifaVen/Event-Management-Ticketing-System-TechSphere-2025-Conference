@@ -16,6 +16,13 @@ import { UserRole } from 'src/roles/enums/userRoles.dto';
 import { VerifyLoginDto } from './dto/verify-login.dto';
 import { Logger } from '@nestjs/common';
 import { ApiBearerAuth,ApiBody, ApiCreatedResponse, ApiOperation, ApiResponse,ApiTags } from '@nestjs/swagger';
+import { UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes } from '@nestjs/swagger';
+import { UploadedFile } from '@nestjs/common';
+import { diskStorage } from 'multer';
+import { join, extname } from 'path';
+import { baseMulterOptions } from '../../multer.config';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -44,11 +51,26 @@ export class AuthController {
 
   
   // SignUp New User
+  
   @ApiOperation({summary:"Signing Up new User"})
   @ApiCreatedResponse({description: "Signed Up", type: SignUpDto})
+  @ApiConsumes("multipart/form-data") 
+  @ApiBody({ type: SignUpDto }) 
   @Post('signup')
-  signUp(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto);
+  @UseInterceptors(FileInterceptor('profileImg', {
+  ...baseMulterOptions,
+  storage: diskStorage({
+    destination: join(process.cwd(), 'uploads/users'),
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      cb(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
+    },
+  }),
+}))
+  signUp(@Body() signUpDto: SignUpDto,@UploadedFile() file: Express.Multer.File,) {
+    const imagePath = file ? `/uploads/${file.filename}` : undefined; 
+    console.log("image Path: ",file)
+    return this.authService.signUp(signUpDto,imagePath);
   }
 
 

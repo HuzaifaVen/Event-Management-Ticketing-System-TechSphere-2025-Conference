@@ -20,6 +20,15 @@ export class SignUpDto {
   email: string;
 
   @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    required: false,
+    description: 'Profile image file',
+  })
+  @IsOptional()
+  profileImg?: string;
+
+  @ApiProperty({
     description: AuthErrors.Validation_PASSWORD,
     minLength: 8,
     example: "StrongPass123",

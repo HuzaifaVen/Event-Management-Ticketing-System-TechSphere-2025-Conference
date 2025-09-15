@@ -164,7 +164,7 @@ export class AuthService {
   }
 
   ///Sign Up Function
-  async signUp(signUpDto: SignUpDto) {
+  async signUp(signUpDto: SignUpDto,imagePath?: string) {
     const { name, email, password, role } = signUpDto;
 
     // 1. Check if user already exists
@@ -186,6 +186,7 @@ export class AuthService {
       email,
       password: hashPassword,
       role: savedRole,
+      profileImg: imagePath,
     });
     await this.userRepository.save(user);
 

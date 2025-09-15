@@ -35,4 +35,14 @@ export class CreateUserDto {
   @IsUUID()
   @IsOptional()
   roleId?: string;
+
+   @ApiProperty({
+    description: "URL or file path for the user's profile image",
+    example: "/uploads/user123.png",
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  profileImg?: string;
 }
