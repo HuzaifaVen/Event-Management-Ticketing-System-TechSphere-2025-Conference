@@ -22,7 +22,7 @@ import { ApiConsumes } from '@nestjs/swagger';
 import { UploadedFile } from '@nestjs/common';
 import { diskStorage } from 'multer';
 import { join, extname } from 'path';
-import { baseMulterOptions } from '../../multer.config';
+import { createMulterOptions  } from '../config/multer.config';
 import { ReqUser } from './dto/req-user.decorator';
 import { OAuthUserProfileDto } from './dto/Oauth-user-profile.dto';
 
@@ -60,19 +60,10 @@ export class AuthController {
   @ApiConsumes("multipart/form-data") 
   @ApiBody({ type: SignUpDto }) 
   @Post('signup')
-  @UseInterceptors(FileInterceptor('profileImg', {
-  ...baseMulterOptions,
-  storage: diskStorage({
-    destination: join(process.cwd(), 'uploads/users'),
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      cb(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
-    },
-  }),
-}))
+  @UseInterceptors(FileInterceptor('profileImg', createMulterOptions('uploads/users')))
   signUp(@Body() signUpDto: SignUpDto,@UploadedFile() file: Express.Multer.File,) {
-    const imagePath = file ? `/uploads/${file.filename}` : undefined; 
-    return this.authService.signUp(signUpDto,imagePath);
+    
+    return this.authService.signUp(signUpDto,file);
   }
 
 

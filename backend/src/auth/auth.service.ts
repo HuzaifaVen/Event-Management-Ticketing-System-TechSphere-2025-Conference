@@ -164,8 +164,9 @@ export class AuthService {
   }
 
   ///Sign Up Function
-  async signUp(signUpDto: SignUpDto,imagePath?: string) {
+  async signUp(signUpDto: SignUpDto,file?: Express.Multer.File) {
     const { name, email, password, role } = signUpDto;
+    const imagePath = file ? `/uploads/${file.filename}` : undefined; 
 
     // 1. Check if user already exists
     const existingUser = await this.userRepository.findOne({ where: { email } });
