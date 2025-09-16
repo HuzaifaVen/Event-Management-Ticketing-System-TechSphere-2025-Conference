@@ -1,0 +1,1534 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_someProtectedRoutes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/stripe/products": {
+      "get": {
+        "operationId": "StripeController_getProducts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of products returned successfully"
+          }
+        },
+        "summary": "Get all Stripe products",
+        "tags": [
+          "Stripe"
+        ]
+      },
+      "post": {
+        "operationId": "StripeController_createProduct",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product created successfully"
+          }
+        },
+        "summary": "Create a Product",
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/stripe/customers": {
+      "get": {
+        "operationId": "StripeController_getCustomers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of customers returned successfully"
+          }
+        },
+        "summary": "Get all Stripe customers",
+        "tags": [
+          "Stripe"
+        ]
+      },
+      "post": {
+        "operationId": "StripeController_createCustomer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Customer created successfully"
+          }
+        },
+        "summary": "Create a Customer",
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/stripe/create-payment-intent": {
+      "post": {
+        "operationId": "StripeController_createPaymentIntent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentIntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Payment Intent created successfully"
+          }
+        },
+        "summary": "Create a Payment Intent",
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/stripe/subscriptions": {
+      "post": {
+        "operationId": "StripeController_createSubscription",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Subscription created successfully"
+          }
+        },
+        "summary": "Create a Subscription",
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/stripe/payment-links": {
+      "post": {
+        "operationId": "StripeController_createPaymentLink",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Payment link created successfully"
+          }
+        },
+        "summary": "Create a Payment Link",
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/stripe/balance": {
+      "get": {
+        "operationId": "StripeController_getBalance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Stripe balance fetched successfully"
+          }
+        },
+        "summary": "Get Stripe account balance",
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/auth/google": {
+      "get": {
+        "operationId": "AuthController_googleAuth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Initiate Google OAuth Login",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/google/callback": {
+      "get": {
+        "operationId": "AuthController_googleAuthRedirect",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OAuth Login successful"
+          }
+        },
+        "summary": "Google OAuth Callback",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "operationId": "AuthController_signUp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Signed Up",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignUpDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Signing Up new User",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Logged In",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login User",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/verify-login-otp": {
+      "post": {
+        "operationId": "AuthController_verifyOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Verify Login OTP",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/change-password": {
+      "patch": {
+        "operationId": "AuthController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change password (Authenticated users only)",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/forgot-password": {
+      "patch": {
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Request password reset link",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/reset-password": {
+      "patch": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Reset password using token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/roles/{id}": {
+      "get": {
+        "operationId": "RolesController_findRoleById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Role ID (UUID)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns role details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetRolesDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found"
+          }
+        },
+        "summary": "Get role by ID",
+        "tags": [
+          "Roles"
+        ]
+      }
+    },
+    "/roles/updateRole/{id}": {
+      "put": {
+        "operationId": "RolesController_updateRoleById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Role ID (UUID)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Role updated successfully"
+          },
+          "404": {
+            "description": "Role not found"
+          }
+        },
+        "summary": "Update role by ID",
+        "tags": [
+          "Roles"
+        ]
+      }
+    },
+    "/users": {
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          }
+        },
+        "summary": "Create a new user",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/getRole/{id}": {
+      "get": {
+        "operationId": "UsersController_findUserRole",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "b0a4ff3d-9c61-4b59-b1bb-2345f5aa6dcd",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User role fetched successfully"
+          }
+        },
+        "summary": "Get role of a specific user",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "operationId": "UsersController_findUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "b0a4ff3d-9c61-4b59-b1bb-2345f5aa6dcd",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User fetched successfully"
+          }
+        },
+        "summary": "Get a user by ID",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/{id}/block": {
+      "post": {
+        "operationId": "UsersController_blockUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "b0a4ff3d-9c61-4b59-b1bb-2345f5aa6dcd",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User blocked successfully"
+          }
+        },
+        "summary": "Block a user",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/{id}/unblock": {
+      "post": {
+        "operationId": "UsersController_unblockUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "b0a4ff3d-9c61-4b59-b1bb-2345f5aa6dcd",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User unblocked successfully"
+          }
+        },
+        "summary": "Unblock a user",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/events/create": {
+      "post": {
+        "operationId": "EventsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event created successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new event (Organizer only)",
+        "tags": [
+          "Events"
+        ]
+      }
+    },
+    "/events/allById": {
+      "get": {
+        "operationId": "EventsController_findAllId",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "location",
+            "required": false,
+            "in": "query",
+            "description": "Optional filter by location",
+            "schema": {
+              "example": "NYC",
+              "type": "string"
+            }
+          },
+          {
+            "name": "pricing",
+            "required": false,
+            "in": "query",
+            "description": "Optional filter by pricing category",
+            "schema": {
+              "example": "VIP",
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "Filter events by user ID",
+            "schema": {
+              "example": "f6aab3a8-31fe-466c-92ed-92ac5f7d96e2",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events retrieved"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all events by logged-in user (Organizer/Admin)",
+        "tags": [
+          "Events"
+        ]
+      }
+    },
+    "/events/{id}": {
+      "get": {
+        "operationId": "EventsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Event ID (UUID)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get event by ID",
+        "tags": [
+          "Events"
+        ]
+      }
+    },
+    "/events/edit/{id}": {
+      "patch": {
+        "operationId": "EventsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Event ID (UUID)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update event (Organizer/Admin)",
+        "tags": [
+          "Events"
+        ]
+      }
+    },
+    "/events/delete/{id}": {
+      "delete": {
+        "operationId": "EventsController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Event ID (UUID)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete event (Organizer/Admin Only)",
+        "tags": [
+          "Events"
+        ]
+      }
+    },
+    "/tickets/generate-ticket": {
+      "post": {
+        "operationId": "TicketsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTicketDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ticket generated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Generate a new ticket",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/tickets/getTicketByCategory/{eventId}": {
+      "get": {
+        "operationId": "TicketsController_fetchTicketsByCategory",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "248bd4f0-a0e2-4b4c-a503-6ec3b6cedfda",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tickets fetched successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Fetch tickets by event category",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/tickets/scanned": {
+      "patch": {
+        "operationId": "TicketsController_scan",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScanByQrDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ticket scanned successfully"
+          }
+        },
+        "summary": "Scan a ticket by QR code",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/tickets/exportTickets": {
+      "get": {
+        "operationId": "TicketsController_exportTickets",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Tickets exported successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Export tickets as CSV/Excel",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/tickets/{id}": {
+      "delete": {
+        "operationId": "TicketsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ticket removed successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove a ticket by ID (deprecated)",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/tickets/fetchTickets": {
+      "get": {
+        "operationId": "TicketsController_fetchTickets",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Tickets fetched successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Fetch all tickets for logged-in user",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/tickets/{eventId}": {
+      "get": {
+        "operationId": "TicketsController_findEvents",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "248bd4f0-a0e2-4b4c-a503-6ec3b6cedfda",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Events fetched successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Find events by eventId",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Event Management Website",
+    "description": "Website for online tickets booking!",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "CreatePaymentIntentDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "Amount for the payment intent",
+            "example": 150
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency for the payment intent",
+            "example": "USD"
+          }
+        },
+        "required": [
+          "amount",
+          "currency"
+        ]
+      },
+      "CreateSubscriptionDto": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "description": "ID of the customer subscribing",
+            "example": "f6aab3a8-31fe-466c-92ed-92ac5f7d96e2"
+          },
+          "priceId": {
+            "type": "string",
+            "description": "ID of the pricing tier for the subscription",
+            "example": "30931e6f-b36e-4e3b-a10f-8d76024c8d67"
+          }
+        },
+        "required": [
+          "customerId",
+          "priceId"
+        ]
+      },
+      "CreateCustomerDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address of the customer",
+            "example": "abdullah12@gmail.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "Full name of the customer",
+            "example": "Abdullah Ahmed"
+          }
+        },
+        "required": [
+          "email",
+          "name"
+        ]
+      },
+      "CreateProductDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the product",
+            "example": "AI Conference Ticket"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the product",
+            "example": "Access to AI Conference 2025 sessions"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price of the product",
+            "example": 150
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "price"
+        ]
+      },
+      "CreatePaymentLinkDto": {
+        "type": "object",
+        "properties": {
+          "priceId": {
+            "type": "string",
+            "description": "ID of the pricing tier for which to create the payment link",
+            "example": "30931e6f-b36e-4e3b-a10f-8d76024c8d67"
+          }
+        },
+        "required": [
+          "priceId"
+        ]
+      },
+      "SignUpDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Full name of the user",
+            "example": "Abdullah Ahmed"
+          },
+          "email": {
+            "type": "string",
+            "description": "User's email address (must be unique)",
+            "example": "abdullah12@gmail.com"
+          },
+          "profileImg": {
+            "type": "string",
+            "format": "binary",
+            "description": "Profile image file"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password should be atleast 8 digits long, including 1 number, 1 special character and 1 capital letter",
+            "minLength": 8,
+            "example": "StrongPass123"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role to assign to the user",
+            "enum": [
+              "organizer",
+              "customer",
+              "admin"
+            ],
+            "example": "customer"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email of the user",
+            "example": "abdullah12@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password of the user",
+            "example": "plaw12!@"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "VerifyLoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Enter Email",
+            "example": "abdullah12@gmail.com"
+          },
+          "otp": {
+            "type": "string",
+            "description": "Enter OTP",
+            "example": "123456"
+          }
+        },
+        "required": [
+          "email",
+          "otp"
+        ]
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "oldPassword": {
+            "type": "string",
+            "description": "Enter old password"
+          },
+          "newPassword": {
+            "type": "string",
+            "description": "Enter new password"
+          }
+        },
+        "required": [
+          "oldPassword",
+          "newPassword"
+        ]
+      },
+      "ForgotPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email of the user requesting password reset",
+            "example": "abdullah12@gmail.com"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email of the user resetting password",
+            "example": "abdullah12@gmail.com"
+          },
+          "otp": {
+            "type": "string",
+            "description": "OTP code sent to the user",
+            "example": "232423"
+          },
+          "password": {
+            "type": "string",
+            "description": "New password for the user",
+            "example": "plaw12!@"
+          }
+        },
+        "required": [
+          "email",
+          "otp",
+          "password"
+        ]
+      },
+      "GetRolesDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Role ID for the user",
+            "example": "f9f0b7f3-f332-4246-8460-ae7b6491e40f"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "Permission": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "type": "string",
+            "description": "Resource for which the permission applies",
+            "enum": [
+              "users",
+              "events",
+              "organizer"
+            ]
+          },
+          "actions": {
+            "type": "array",
+            "description": "List of allowed actions on the resource",
+            "items": {
+              "type": "string",
+              "enum": [
+                "read",
+                "write",
+                "update",
+                "delete"
+              ]
+            }
+          }
+        },
+        "required": [
+          "resource",
+          "actions"
+        ]
+      },
+      "UpdateRoleDto": {
+        "type": "object",
+        "properties": {
+          "permissions": {
+            "description": "Updated list of permissions for the role",
+            "example": [
+              {
+                "actions": [
+                  "read"
+                ],
+                "resource": "events"
+              },
+              {
+                "actions": [
+                  "write"
+                ],
+                "resource": "events"
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            }
+          }
+        }
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Full name of the user",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "User's email address",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password should be atleast 8 digits long, including 1 number, 1 special character and 1 capital letter",
+            "example": "MySecurePass123"
+          },
+          "roleId": {
+            "type": "string",
+            "description": "Role ID assigned to the user",
+            "example": "dfdeb945-228e-450e-a147-2574f0308967",
+            "nullable": true
+          },
+          "profileImg": {
+            "type": "string",
+            "description": "URL or file path for the user's profile image",
+            "example": "/uploads/user123.png",
+            "nullable": true
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password"
+        ]
+      },
+      "CreatePricingDto": {
+        "type": "object",
+        "properties": {
+          "tier": {
+            "type": "string",
+            "description": "Tier of pricing",
+            "enum": [
+              "student",
+              "vip",
+              "general admission"
+            ],
+            "example": "student"
+          },
+          "pricing": {
+            "type": "number",
+            "description": "Price for this tier",
+            "example": 50
+          },
+          "maxTickets": {
+            "type": "number",
+            "description": "Maximum number of tickets available for this tier",
+            "example": 100
+          },
+          "soldTickets": {
+            "type": "number",
+            "description": "Number of tickets already sold (optional)",
+            "example": 20
+          },
+          "discountPercentage": {
+            "type": "number",
+            "description": "Discount percentage (optional)",
+            "example": 10
+          },
+          "discountName": {
+            "type": "string",
+            "description": "Discount name (optional)",
+            "example": "Early Bird"
+          },
+          "discountStartDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Discount start date (optional, ISO string)",
+            "example": "2025-10-01T10:00:00.000Z"
+          },
+          "discountEndDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Discount end date (optional, ISO string)",
+            "example": "2025-10-10T23:59:59.000Z"
+          }
+        },
+        "required": [
+          "tier",
+          "pricing",
+          "maxTickets"
+        ]
+      },
+      "CreateEventDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the event",
+            "example": "AI Confer 2025"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the event",
+            "example": "An exciting tech conference about AI and cloud computing."
+          },
+          "startDateTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Start date and time of the event (ISO string)",
+            "example": "2025-09-15T09:00:00.000Z"
+          },
+          "endDateTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "End date and time of the event (ISO string)",
+            "example": "2025-09-15T18:00:00.000Z"
+          },
+          "userId": {
+            "type": "string",
+            "description": "User ID of the event creator",
+            "example": "248bd4f0-a0e2-4b4c-a503-6ec3b6cedfda"
+          },
+          "location": {
+            "type": "string",
+            "description": "Location of the event",
+            "example": "123 Main Street, Cityville"
+          },
+          "pricings": {
+            "description": "List of pricing tiers for the event (optional)",
+            "example": [
+              {
+                "tier": "student",
+                "pricing": 50,
+                "maxTickets": 100,
+                "soldTickets": 10,
+                "discountPercentage": 10,
+                "discountName": "Early Bird",
+                "discountStartDate": "2025-09-01T00:00:00.000Z",
+                "discountEndDate": "2025-09-10T23:59:59.000Z"
+              },
+              {
+                "tier": "vip",
+                "pricing": 150,
+                "maxTickets": 50
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatePricingDto"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "startDateTime",
+          "endDateTime",
+          "location"
+        ]
+      },
+      "UpdateEventDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the event",
+            "example": "AI Confer 2025"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the event",
+            "example": "An exciting tech conference about AI and cloud computing."
+          },
+          "startDateTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Start date and time of the event (ISO string)",
+            "example": "2025-09-15T09:00:00.000Z"
+          },
+          "endDateTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "End date and time of the event (ISO string)",
+            "example": "2025-09-15T18:00:00.000Z"
+          },
+          "userId": {
+            "type": "string",
+            "description": "User ID of the event creator",
+            "example": "248bd4f0-a0e2-4b4c-a503-6ec3b6cedfda"
+          },
+          "location": {
+            "type": "string",
+            "description": "Location of the event",
+            "example": "123 Main Street, Cityville"
+          },
+          "pricings": {
+            "description": "Updated list of pricing tiers (optional)",
+            "example": [
+              {
+                "tier": "VIP",
+                "pricing": 200,
+                "maxTickets": 40
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatePricingDto"
+            }
+          }
+        }
+      },
+      "CreateTicketDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "description": "Event ID",
+            "example": "248bd4f0-a0e2-4b4c-a503-6ec3b6cedfda"
+          },
+          "pricingId": {
+            "type": "string",
+            "description": "Pricing Tier ID",
+            "example": "30931e6f-b36e-4e3b-a10f-8d76024c8d67"
+          }
+        },
+        "required": [
+          "eventId",
+          "pricingId"
+        ]
+      },
+      "ScanByQrDto": {
+        "type": "object",
+        "properties": {
+          "qrCode": {
+            "type": "string",
+            "description": "QR code of the ticket",
+            "example": "abc123-xyz789"
+          }
+        },
+        "required": [
+          "qrCode"
+        ]
+      }
+    }
+  }
+}
