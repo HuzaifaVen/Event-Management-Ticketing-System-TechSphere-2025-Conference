@@ -9,9 +9,9 @@ import { User } from '../users/entities/user.entity';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { AuthenticationGuard } from '../guards/auth.guard';
-import { OtpModule } from 'src/otp/otp.module';
+import { OtpModule } from '../otp/otp.module';
 import { RoleModule } from '../roles/roles.module';
-import { Roles } from 'src/roles/entities/roles.entity';
+import { Roles } from '../roles/entities/roles.entity';
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),

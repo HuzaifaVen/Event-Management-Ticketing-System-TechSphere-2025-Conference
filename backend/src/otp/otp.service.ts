@@ -1,4 +1,4 @@
-// src/otp/otp.service.ts
+
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,6 +7,7 @@ import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
 import { OtpMessages } from './constants/otp.messages';
 import { OtpErrors } from './constants/otp.errors';
+import * as otpUtils from './utils/generate-otp';
 
 @Injectable()
 export class OtpService {
@@ -20,8 +21,9 @@ export class OtpService {
   await this.otpRepository.delete({ email });
 
   // Generate new OTP
-  const otpPlain = crypto.randomInt(100000, 1000000).toString(); // 6 digits
-  const hashedOtp = await bcrypt.hash(otpPlain, 10);
+  const otpPlain =  otpUtils.generateOtp();
+
+  const hashedOtp = await bcrypt.hash(otpPlain.toString(), 10);
 
   const otpRecord = this.otpRepository.create({
     email,

@@ -1,9 +1,9 @@
 import { IsEmail, IsString, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OtpErrors } from '../constants/otp.errors';
-import { AuthErrors } from 'src/auth/constants/auth.errors';
+import { AuthErrors } from '../../auth/constants/auth.errors';
 import { AuthMechanism } from 'typeorm';
-import { AuthMessages } from 'src/auth/constants/auth.messages';
+import { AuthMessages } from '../../auth/constants/auth.messages';
 
 export class VerifyOtpDto {
   @ApiProperty({ description: 'User email', required: true })

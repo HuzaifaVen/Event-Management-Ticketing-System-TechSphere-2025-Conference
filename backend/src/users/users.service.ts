@@ -3,14 +3,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { Roles } from 'src/roles/entities/roles.entity';
-import { UserRole } from 'src/roles/enums/userRoles.dto';
-import { DefaultRolePermissions } from 'src/roles/dto/permissions.default';
-import { AuthErrors } from 'src/auth/constants/auth.errors';
-import { AuthMessages } from 'src/auth/constants/auth.messages';
+import { Roles } from '../roles/entities/roles.entity';
+import { UserRole } from '../roles/enums/userRoles.dto';
+import { DefaultRolePermissions } from '../roles/dto/permissions.default';
+import { AuthErrors } from '../auth/constants/auth.errors';
 import { UserMessages } from './constants/user.messages';
 import { UserErrors } from './constants/user.errors';
-import { RoleServices } from 'src/roles/roles.service';
+import { RoleServices } from '../roles/roles.service';
 
 @Injectable()
 export class UsersService {

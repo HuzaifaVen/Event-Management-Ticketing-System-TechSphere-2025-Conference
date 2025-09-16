@@ -3,8 +3,8 @@ import { AuthErrors } from '../constants/auth.errors';
 import { ApiProperty } from '@nestjs/swagger';
 import { AuthMechanism } from 'typeorm';
 import { AuthMessages } from '../constants/auth.messages';
-import { OtpErrors } from 'src/otp/constants/otp.errors';
-import { Password } from 'src/decorators/password.decorator';
+import { OtpErrors } from '../../otp/constants/otp.errors';
+import { Password } from '../../decorators/password.decorator';
 
 export class ResetPasswordDto {
   @ApiProperty({

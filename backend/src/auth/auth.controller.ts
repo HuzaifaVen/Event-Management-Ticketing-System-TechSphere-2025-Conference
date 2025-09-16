@@ -1,18 +1,16 @@
 import { Controller, Get, Post, Body,Put, Patch, Param, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { UseGuards } from '@nestjs/common';
-import { AuthenticationGuard } from 'src/guards/auth.guard';
+import { AuthenticationGuard } from '../guards/auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Res, Req } from '@nestjs/common';
 import { RefreshTokenDto } from './dto/refresh-tokens.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { UserRole } from 'src/roles/enums/userRoles.dto';
+import { UserRole } from '../roles/enums/userRoles.dto';
 import { VerifyLoginDto } from './dto/verify-login.dto';
 import { Logger } from '@nestjs/common';
 import { ApiBearerAuth,ApiBody, ApiCreatedResponse, ApiOperation, ApiResponse,ApiTags } from '@nestjs/swagger';
@@ -61,7 +59,7 @@ export class AuthController {
   @ApiBody({ type: SignUpDto }) 
   @Post('signup')
   @UseInterceptors(FileInterceptor('profileImg', createMulterOptions('uploads/users')))
-  signUp(@Body() signUpDto: SignUpDto,@UploadedFile() file: Express.Multer.File,) {
+  signUp(@Body() signUpDto: SignUpDto,@UploadedFile() file?: Express.Multer.File,) {
     
     return this.authService.signUp(signUpDto,file);
   }

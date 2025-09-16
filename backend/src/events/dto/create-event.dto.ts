@@ -1,8 +1,8 @@
 import { IsDate, IsString, IsOptional, IsArray, ValidateNested, IsNotEmpty } from "class-validator";
 import { Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
-import { CreatePricingDto } from "src/pricing/dto/create-pricing.dto";
-import { Tiers } from "src/pricing/enums/pricing-tiers.enums";
+import { CreatePricingDto } from "../../pricing/dto/create-pricing.dto";
+import { Tiers } from "../../pricing/enums/pricing-tiers.enums";
 import { EventErrors } from "../constants/event.errors";
 
 export class CreateEventDto {

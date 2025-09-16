@@ -8,4 +8,5 @@ export abstract class TicketErrors {
   static readonly PRICINGID_IS_REQUIRED = "Pricing Id is required";
   static readonly VALID_QRCODE ='QR code must be a string' ;
   static readonly QR_CODE_REQUIRED = "QR code is required";
+  static readonly INVALID_PRICING_ID = "Invalid Pricing ID";
 }

@@ -1,6 +1,6 @@
 import { UserRole } from "../../roles/enums/userRoles.dto";
 import { Column, OneToOne, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { Roles } from "src/roles/entities/roles.entity";
+import { Roles } from "../../roles/entities/roles.entity";
 import { JoinColumn } from "typeorm";
 
 

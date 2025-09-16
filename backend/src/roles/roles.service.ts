@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Roles } from "./entities/roles.entity";
 import { Repository } from "typeorm";
 import { CreateRoleDto } from "./dto/roles.dto";
-import { User } from "src/users/entities/user.entity";
+import { User } from "../users/entities/user.entity";
 import { DefaultRolePermissions } from "./dto/permissions.default";
 import { RoleErrors } from "./constants/roles.errors";
 

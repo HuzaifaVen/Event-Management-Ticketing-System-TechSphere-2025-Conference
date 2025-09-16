@@ -1,9 +1,9 @@
 import { IsEmail, IsOptional, IsString, MinLength, Matches, IsUUID, IsNotEmpty } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { AuthErrors } from "src/auth/constants/auth.errors";
-import { AuthMessages } from "src/auth/constants/auth.messages";
-import { RoleErrors } from "src/roles/constants/roles.errors";
-import { Password } from "src/decorators/password.decorator";
+import { AuthErrors } from "../../auth/constants/auth.errors";
+import { AuthMessages } from "../../auth/constants/auth.messages";
+import { RoleErrors } from "../../roles/constants/roles.errors";
+import { Password } from "../../decorators/password.decorator";
 
 export class CreateUserDto {
   @ApiProperty({

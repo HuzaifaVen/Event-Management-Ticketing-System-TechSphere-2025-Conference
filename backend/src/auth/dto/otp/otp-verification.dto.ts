@@ -2,8 +2,8 @@
 
 import { IsEmail, IsString, IsNotEmpty, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { AuthMessages } from 'src/auth/constants/auth.messages';
-import { OtpErrors } from 'src/otp/constants/otp.errors';
+import { AuthMessages } from '../../../auth/constants/auth.messages';
+import { OtpErrors } from '../../../otp/constants/otp.errors';
 
 export class OtpVerifyDto {
   @ApiProperty({

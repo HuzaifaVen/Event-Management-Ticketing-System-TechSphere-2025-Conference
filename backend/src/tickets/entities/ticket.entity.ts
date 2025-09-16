@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
-import { Event } from "src/events/entities/event.entity";
+import { Event } from "../../events/entities/event.entity";
 
 @Entity("tickets")
 export class Ticket {

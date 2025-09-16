@@ -2,12 +2,12 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Quer
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { AuthenticationGuard } from 'src/guards/auth.guard';
-import { AuthorizationGuard } from 'src/guards/authorization.guard';
-import { Permissions } from 'src/roles/decorators/permissions.decorators';
-import { UserRole } from 'src/roles/enums/userRoles.dto';
-import { Resources } from 'src/roles/enums/resources.enum';
-import { Actions } from 'src/roles/enums/actions.enum';
+import { AuthenticationGuard } from '../guards/auth.guard';
+import { AuthorizationGuard } from '../guards/authorization.guard';
+import { Permissions } from '../roles/decorators/permissions.decorators';
+import { UserRole } from '../roles/enums/userRoles.dto';
+import { Resources } from '../roles/enums/resources.enum';
+import { Actions } from '../roles/enums/actions.enum';
 import { FindAllEventsQueryDto } from './dto/find-eventsById.dto';
 import { ApiTags,ApiBearerAuth,ApiOperation, ApiBody, ApiResponse,ApiQuery,ApiParam} from '@nestjs/swagger';
 

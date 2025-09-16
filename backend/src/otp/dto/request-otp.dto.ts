@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { AuthMessages } from 'src/auth/constants/auth.messages';
+import { AuthMessages } from '../../auth/constants/auth.messages';
 
 export class RequestOtpDto {
   @ApiProperty({

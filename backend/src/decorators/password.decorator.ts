@@ -1,4 +1,4 @@
-// src/common/decorators/password.decorator.ts
+
 import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
 
 export function Password(validationOptions?: ValidationOptions) {

@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { UserRole } from 'src/roles/enums/userRoles.dto';
+import { UserRole } from '../roles/enums/userRoles.dto';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignUpDto } from './dto/signup.dto';
@@ -11,10 +11,10 @@ import { User } from '../users/entities/user.entity';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { MailerService } from '@nestjs-modules/mailer';
-import { OtpService } from 'src/otp/otp.service';
-import { Roles } from 'src/roles/entities/roles.entity';
-import { RoleServices } from 'src/roles/roles.service';
-import { DefaultRolePermissions } from 'src/roles/dto/permissions.default';
+import { OtpService } from '../otp/otp.service';
+import { Roles } from '../roles/entities/roles.entity';
+import { RoleServices } from '../roles/roles.service';
+import { DefaultRolePermissions } from '../roles/dto/permissions.default';
 import { otpEmailTemplate } from './templates/auth-otp-mail.template';
 import { comparePasswords } from '../../helpers/password.helper';
 import { OAuthUserProfileDto } from './dto/Oauth-user-profile.dto';
@@ -192,8 +192,7 @@ export class AuthService {
     await this.userRepository.save(user);
 
     return {
-      message: AuthMessages.USER_SIGNED_UP,
-      user: user,
+      message: AuthMessages.USER_SIGNED_UP
     };
   }
 

@@ -4,12 +4,12 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Event } from './entities/event.entity';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { NotFoundError } from 'rxjs';
-import { Pricing } from 'src/pricing/entities/pricing.entity';
-import { PricingService } from 'src/pricing/pricing.service';
+import { Pricing } from '../pricing/entities/pricing.entity';
+import { PricingService } from '../pricing/pricing.service';
 import { EventErrors } from './constants/event.errors';
-import { AuthErrors } from 'src/auth/constants/auth.errors';
+import { AuthErrors } from '../auth/constants/auth.errors';
 import { EventMessages } from './constants/event.messages';
 
 @Injectable()
@@ -20,8 +20,7 @@ export class EventsService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Pricing)
-    private readonly pricingRepository: Repository<Pricing>,
-    private readonly pricingService: PricingService
+    private readonly pricingRepository: Repository<Pricing>
   ) { }
 
   async create(createEventDto: CreateEventDto, userId: string) {

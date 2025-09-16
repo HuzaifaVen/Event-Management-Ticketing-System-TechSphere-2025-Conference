@@ -3,7 +3,7 @@ import { IsString, MinLength, Matches, IsNotEmpty } from 'class-validator';
 import { AuthErrors } from '../constants/auth.errors';
 import { ApiProperty } from '@nestjs/swagger';
 import { AuthMessages } from '../constants/auth.messages';
-import { Password } from 'src/decorators/password.decorator';
+import { Password } from '../../decorators/password.decorator';
 
 export class ChangePasswordDto {
   @ApiProperty({

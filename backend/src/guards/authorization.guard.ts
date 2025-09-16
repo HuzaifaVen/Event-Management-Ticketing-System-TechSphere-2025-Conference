@@ -1,10 +1,10 @@
 import { CanActivate, ExecutionContext, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { Observable } from "rxjs";
-import { AuthService } from "src/auth/auth.service";
-import { AuthErrors } from "src/auth/constants/auth.errors";
-import { PERMISSIONS_KEY } from "src/roles/decorators/permissions.decorators";
-import { AuthorizationPermission, Permission } from "src/roles/dto/permissions.dto";
+import { AuthService } from "../auth/auth.service";
+import { AuthErrors } from "../auth/constants/auth.errors";
+import { PERMISSIONS_KEY } from "../roles/decorators/permissions.decorators";
+import { AuthorizationPermission, Permission } from "../roles/dto/permissions.dto";
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {

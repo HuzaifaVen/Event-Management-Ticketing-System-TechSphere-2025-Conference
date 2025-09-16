@@ -2,7 +2,7 @@ import { PartialType, ApiPropertyOptional } from '@nestjs/swagger';
 import { CreateEventDto } from './create-event.dto';
 import { IsOptional, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CreatePricingDto } from 'src/pricing/dto/create-pricing.dto';
+import { CreatePricingDto } from '../../pricing/dto/create-pricing.dto';
 import { EventErrors } from '../constants/event.errors';
 
 export class UpdateEventDto extends PartialType(CreateEventDto) {

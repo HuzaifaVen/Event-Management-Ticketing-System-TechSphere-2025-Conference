@@ -2,7 +2,7 @@ import { IsEmail, IsString, Matches, MinLength, IsNotEmpty } from 'class-validat
 import { AuthErrors } from '../constants/auth.errors';
 import { ApiProperty } from '@nestjs/swagger';
 import { AuthMessages } from '../constants/auth.messages';
-import { Password } from 'src/decorators/password.decorator';
+import { Password } from '../../decorators/password.decorator';
 
 export class LoginDto {
   @ApiProperty({

@@ -9,14 +9,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ticket } from './entities/ticket.entity';
 import { v4 as uuidv4 } from 'uuid';
-import { Event } from 'src/events/entities/event.entity';
+import { Event } from '../events/entities/event.entity';
 import { TicketErrors } from './constants/ticket.errors';
 import { TicketMessages } from './constants/ticket.messages';
-import { User } from 'src/users/entities/user.entity';
-import { Pricing } from 'src/pricing/entities/pricing.entity';
+import { User } from '../users/entities/user.entity';
+import { Pricing } from '../pricing/entities/pricing.entity';
 import { Parser } from 'json2csv';
 import { Response } from 'express';
-import { EventErrors } from 'src/events/constants/event.errors';
+import { EventErrors } from '../events/constants/event.errors';
 
 @Injectable()
 export class TicketsService {
@@ -41,13 +41,12 @@ export class TicketsService {
     for (const event of events) {
       const tickets = await this.ticketRepository.find({
         where: { event: { id: event.id } },
-        relations: ['event'], // include event and user info
+        relations: ['event'], 
       });
 
       if (!tickets.length) continue;
 
 
-      // Map tickets to include userId, eventName, and pricingId
       const mappedTickets = tickets.map((ticket) => ({
         ticketId: ticket.id,
         userId: ticket.userId,
@@ -59,7 +58,7 @@ export class TicketsService {
         qrCode: ticket.qrCode,
       }));
 
-      allTickets.push(...mappedTickets); // flatten into single array
+      allTickets.push(...mappedTickets); 
     }
 
     // Optional: sort by ticket creation date or id
@@ -102,7 +101,7 @@ export class TicketsService {
 
       if (!pricing) continue; // skip if pricing not found
 
-      const tier = pricing.tier; // assuming pricing has 'tier' column
+      const tier = pricing.tier; 
 
       if (!categorized[tier]) {
         categorized[tier] = { users: [], count: 0 };
@@ -113,12 +112,11 @@ export class TicketsService {
     }
 
     return categorized;
-    // const users = await this.userRepository.find({where:{id: tickets.}})
   }
 
   async create(createTicketDto: CreateTicketDto, userId: any) {
     const { eventId } = createTicketDto;
-    const event = this.eventRepository.findOne({where:{id:eventId}})
+    const event = await this.eventRepository.findOne({where:{id:eventId}})
     if(!event) throw new NotFoundException(EventErrors.EVENT_NOT_EXIST)
 
     const existingTicket = await this.ticketRepository.findOne({

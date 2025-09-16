@@ -1,7 +1,7 @@
 import { IsEmail, IsString, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { AuthErrors } from 'src/auth/constants/auth.errors';
-import { AuthMessages } from 'src/auth/constants/auth.messages';
+import { AuthErrors } from '../../auth/constants/auth.errors';
+import { AuthMessages } from '../../auth/constants/auth.messages';
 
 export class CreateCustomerDto {
   @ApiProperty({

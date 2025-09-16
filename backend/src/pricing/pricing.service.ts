@@ -15,13 +15,14 @@ export class PricingService {
   ) {}
 
   async create(createPricingDto: CreatePricingDto) {
-    const pricing = await this.pricingRepository.create(createPricingDto)
-    if(pricing) throw new BadRequestException(PricingErrors.PRICING_ALREADY_EXISTS);
+  const existing = await this.pricingRepository.findOne({ where: { tier: createPricingDto.tier } });
+  if (existing) throw new BadRequestException(PricingErrors.PRICING_ALREADY_EXISTS);
 
-    await this.pricingRepository.save(pricing)
+  const pricing = this.pricingRepository.create(createPricingDto);
+  await this.pricingRepository.save(pricing);
 
-    return {message: PricingMessages.PRICING_CREATED_SUCESS}
-  }
+  return { message: PricingMessages.PRICING_CREATED_SUCESS };
+}
 
   // findAll() {
   //   return `This action returns all pricing`;

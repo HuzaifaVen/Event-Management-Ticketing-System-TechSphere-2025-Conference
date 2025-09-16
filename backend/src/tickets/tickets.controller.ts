@@ -1,9 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, Res } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
-import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { AuthenticationGuard } from 'src/guards/auth.guard';
-import { AuthorizationGuard } from 'src/guards/authorization.guard';
+import { AuthenticationGuard } from '../guards/auth.guard';
+import { AuthorizationGuard } from '../guards/authorization.guard';
 
 
 import {
