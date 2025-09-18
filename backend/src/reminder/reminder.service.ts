@@ -6,15 +6,13 @@ import { Repository } from 'typeorm';
 import { Event } from 'src/events/entities/event.entity';
 import { Ticket } from 'src/tickets/entities/ticket.entity';
 import { addDays, startOfDay, endOfDay } from 'date-fns';
-import * as nodemailer from 'nodemailer';
 import { Between } from 'typeorm';
-import { Reminder } from './entities/reminder.entity';
 import { User } from 'src/users/entities/user.entity';
-import { NotFoundError } from 'rxjs';
 import { AuthErrors } from 'src/auth/constants/auth.errors';
 import * as dotenv from 'dotenv';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { EventMessages } from 'src/events/constants/event.messages';
 
 dotenv.config();
 @Injectable()
@@ -51,7 +49,7 @@ export class ReminderService {
     });
 
     if (!events.length) {
-      this.logger.log('No events found for tomorrow.');
+      this.logger.log(EventMessages.NO_EVENT_TOMORROW);
       return;
     }
 
@@ -59,7 +57,7 @@ export class ReminderService {
       const tickets = await this.ticketRepo.find({where:{event:{id: event.id}}})
 
       for (const ticket of tickets) {
-        if (ticket.notified) continue; // already notified
+        if (ticket.notified) continue; 
 
         const user = await this.userRepo.findOne({where:{id:ticket.userId}})
         if(!user) throw new NotFoundException(AuthErrors.USER_NOT_FOUND);

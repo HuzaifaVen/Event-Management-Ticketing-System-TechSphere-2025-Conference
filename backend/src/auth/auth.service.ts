@@ -3,7 +3,6 @@ import { UserRole } from 'src/roles/enums/userRoles.dto';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignUpDto } from './dto/signup.dto';
-import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { LoginDto } from './dto/login.dto';
@@ -16,10 +15,11 @@ import { Roles } from 'src/roles/entities/roles.entity';
 import { RoleServices } from 'src/roles/roles.service';
 import { DefaultRolePermissions } from 'src/roles/dto/permissions.default';
 import { otpEmailTemplate } from './templates/auth-otp-mail.template';
-import { comparePasswords } from '../../helpers/password.helper';
+import { comparePasswords, hashPassword } from '../../helpers/password.helper';
 import { OAuthUserProfileDto } from './dto/Oauth-user-profile.dto';
 import { AuthMessages } from './constants/auth.messages';
 import { AuthErrors } from './constants/auth.errors';
+
 
 @Injectable()
 export class AuthService {
@@ -57,11 +57,11 @@ export class AuthService {
 
   async sendOtpMail(email: string) {
     const otp = await this.otpService.generateOtp(email);
-    
-    const message = otpEmailTemplate(otp);
+
+    const message = otpEmailTemplate(otp.toString());
 
     await this.mailService.sendMail({
-      from:  this.configService.get("MAIL_FROM"),
+      from: this.configService.get("MAIL_FROM"),
       to: email,
       subject: this.configService.get('MAIL_SUBJECT_OTP'),
       html: message,
@@ -72,7 +72,7 @@ export class AuthService {
 
 
   async forgotPassword(dto) {
-    const {email} = dto;
+    const { email } = dto;
     const user = await this.userRepository.findOne({ where: { email: email } })
     if (!user) throw new NotFoundException(AuthErrors.USER_NOT_EXIST)
     await this.sendOtpMail(email);
@@ -80,14 +80,43 @@ export class AuthService {
     return { message: AuthMessages.OTP_FORWARDED_MESSAGE };
   }
 
+  async handleGoogleCallback(
+    user: OAuthUserProfileDto & { role?: UserRole }
+  ): Promise<string> {
+    const result = await this.validateOAuthLogin(
+      user,
+      'google',
+      user.role as UserRole,
+    );
+
+    return `${this.configService.get('FRONTEND_URL')}/otp?email=${encodeURIComponent(result.email)}`;
+  }
+
+
+  async verifyForgotPasswordOtp(dto) {
+    const { email, otp } = dto;
+    console.log({ email, otp })
+
+    await this.otpService.verifyOtp(email, otp);
+    const user = await this.userRepository.findOne({ where: { email } })
+    if (!user) throw new UnauthorizedException(AuthErrors.USER_NOT_EXIST)
+
+
+    const { accessToken } = await this.generateUserToken(email);
+
+    return {
+      message: 'OTP verified successfully',
+      accessToken,
+    };
+  }
 
   async resetPassword(dto) {
-    const {email,otp,password} = dto;
-    await this.otpService.verifyOtp(email, otp);
+    const { email, password } = dto;
     const user = await this.userRepository.findOne({ where: { email } });
+ 
     if (!user) throw new UnauthorizedException(AuthErrors.USER_NOT_EXIST);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password, 10);
 
     await this.userRepository.update(
       { email },
@@ -98,22 +127,22 @@ export class AuthService {
   }
 
   async changePassword(changePasswordDto, userId) {
-    
-    const {oldPassword, newPassword} = changePasswordDto;
+
+    const { oldPassword, newPassword } = changePasswordDto;
     const user = await this.userRepository.findOne({ where: { id: userId } })
     if (!user) throw new NotFoundException(AuthErrors.USER_NOT_FOUND)
 
     const passwordMatch = await comparePasswords(oldPassword, user?.password);
     if (!passwordMatch) throw new UnauthorizedException(AuthErrors.OLD_PASSWORD_NOT_MATCHED);
 
-    const newHashPassword = await bcrypt.hash(newPassword, 10);
+    const newHashPassword = await hashPassword(newPassword, 10);
 
     user.password = newHashPassword;
 
     await this.userRepository.save(user);
 
 
-    return { message: AuthMessages.PASSWORD_CHANGED_SUCCESS};
+    return { message: AuthMessages.PASSWORD_CHANGED_SUCCESS };
 
   }
 
@@ -135,49 +164,53 @@ export class AuthService {
     await this.refreshTokenRepository.save({ token, userId, expiresAt: expiryDate, })
   }
 
-  async validateOAuthLogin(profile: OAuthUserProfileDto, provider: 'google' | 'twitter',role:any) {
-    const email = profile.emails.find(e=> e.verified === true)?.value // OAuth providers return emails
+  async validateOAuthLogin(
+    profile: OAuthUserProfileDto,
+    provider: 'google' | 'twitter',
+    role?: UserRole,
+  ) {
+    const email = profile.email?.verified ? profile.email.value : undefined;
+    if (!email) throw new UnauthorizedException(AuthErrors.USER_NOT_FOUND);
+
     let user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
-       const newRole = await this.roleService.createRole({
-      role: role ?? UserRole.CUSTOMER,
-      permissions: DefaultRolePermissions[role ?? UserRole.CUSTOMER],
-    });
-        const savedRole = await this.rolesRepository.save(newRole);
+      const newRole = await this.roleService.createRole({
+        role: role || UserRole.ATTENDEE,
+        permissions: DefaultRolePermissions[role ?? UserRole.ATTENDEE],
+      });
+      const savedRole = await this.rolesRepository.save(newRole);
+
       user = this.userRepository.create({
         name: profile.displayName,
         email,
-        provider: provider,
-        role:savedRole
+        provider,
+        role: savedRole,
       });
       await this.userRepository.save(user);
     }
 
-    const token = this.jwtService.sign(
-      { id: user.id },
-      { secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: '1h',
-       },
-    );
-
-    return { user, token };
+    await this.sendOtpMail(email);
+    console.log()
+    return { email: user.email };
   }
 
+
+
   ///Sign Up Function
-  async signUp(signUpDto: SignUpDto,file?: Express.Multer.File) {
+  async signUp(signUpDto: SignUpDto, file?: Express.Multer.File) {
     const { name, email, password, role } = signUpDto;
-    const imagePath = file ? `/uploads/${file.filename}` : undefined; 
+    const imagePath = file ? `/uploads/${file.filename}` : undefined;
 
     // 1. Check if user already exists
     const existingUser = await this.userRepository.findOne({ where: { email } });
     if (existingUser) {
       throw new BadRequestException(AuthErrors.EMAIL_ALREADY_EXISTS);
     }
-    const hashPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password, 10);
 
     const newRole = await this.roleService.createRole({
-      role: role ?? UserRole.CUSTOMER,
-      permissions: DefaultRolePermissions[role ?? UserRole.CUSTOMER],
+      role: role ?? UserRole.ATTENDEE,
+      permissions: DefaultRolePermissions[role ?? UserRole.ATTENDEE],
     });
 
     const savedRole = await this.rolesRepository.save(newRole);
@@ -185,7 +218,7 @@ export class AuthService {
     const user = this.userRepository.create({
       name,
       email,
-      password: hashPassword,
+      password: hashedPassword,
       role: savedRole,
       profileImg: imagePath,
     });
@@ -205,13 +238,12 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: { email }
     })
-    if (!user) throw new UnauthorizedException(AuthErrors.INVALID_CREDENTIALS);
+    if (!user) throw new UnauthorizedException({ message: AuthErrors.INVALID_CREDENTIALS });
 
     const passwordMatch = await comparePasswords(password, user.password);
-    if (!passwordMatch) throw new UnauthorizedException(AuthErrors.INVALID_CREDENTIALS);
+    if (!passwordMatch) throw new UnauthorizedException({ message: AuthErrors.INVALID_CREDENTIALS });
 
     await this.sendOtpMail(email);
-
     return {
       message: AuthMessages.USER_LOGGED_IN
     };
@@ -219,16 +251,19 @@ export class AuthService {
 
 
   async verifyLoginOtp(verifyLoginDto) {
-    const {email, otp} = verifyLoginDto;
+    const { email, otp } = verifyLoginDto;
+    console.log(email, otp)
     await this.otpService.verifyOtp(email, otp);
 
     const user = await this.userRepository.findOne({ where: { email } });
+
     if (!user) throw new UnauthorizedException(AuthErrors.USER_NOT_FOUND);
 
     user.isVerified = true;
     await this.userRepository.save(user);
 
-    return this.generateUserToken(user.id);
+    const { accessToken} = await this.generateUserToken(user.id);
+    return accessToken;
   }
 
   async getUserPermissions(userId: string) {

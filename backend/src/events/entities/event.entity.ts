@@ -2,12 +2,11 @@ import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Column, OneToMan
 import { User } from 'src/users/entities/user.entity';
 import { Pricing } from 'src/pricing/entities/pricing.entity';
 import { Ticket } from 'src/tickets/entities/ticket.entity';
+import { BaseEntity } from 'src/model/base.entity';
 
 @Entity('events')
-export class Event {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Event extends BaseEntity{
+  
   @Column({ type: 'uuid', nullable: false })
   userId: string;
 

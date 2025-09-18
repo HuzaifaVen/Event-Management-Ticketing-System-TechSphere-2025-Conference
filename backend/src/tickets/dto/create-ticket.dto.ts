@@ -21,20 +21,10 @@ export class CreateTicketDto {
   @IsNotEmpty({ message: TicketErrors.PRICINGID_IS_REQUIRED })
   pricingId: string;
 
-  // @ApiProperty({
-  //   description: "QR code for the ticket",
-  //   example: "TICKET-QR-123456",
-  //   required: false,
-  // })
   @IsOptional()
   @IsString()
   qrCode?: string;
 
-  // @ApiProperty({
-  //   description: "Flag to indicate if the ticket has been used",
-  //   example: false,
-  //   required: false,
-  // })
   @IsOptional()
   @IsBoolean()
   isUsed?: boolean;

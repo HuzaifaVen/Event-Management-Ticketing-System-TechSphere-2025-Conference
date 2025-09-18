@@ -5,8 +5,6 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { RefreshToken } from './auth/entities/refresh-token.entity';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { OtpModule } from './otp/otp.module';
 import { OtpRequest } from './otp/entities/otp.entity';
@@ -83,7 +81,5 @@ import { extname, join } from 'path';
     StripeModule,
     ReminderModule
   ],
-  controllers: [AppController],
-  providers: [AppService]
 })
 export class AppModule {}

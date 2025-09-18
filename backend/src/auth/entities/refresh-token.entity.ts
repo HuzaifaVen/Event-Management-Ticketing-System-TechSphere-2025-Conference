@@ -1,11 +1,10 @@
 import { Column, Entity, JoinColumn, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { BaseEntity } from 'src/model/base.entity';
 
 @Entity({ name: 'refresh_tokens' })
-export class RefreshToken {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class RefreshToken  extends BaseEntity{
+ 
   @Column({ type: 'text', nullable: false })
   token: string; // token text cannot be null
 
@@ -21,10 +20,4 @@ export class RefreshToken {
 
   @Column({ type: 'uuid', nullable: false })
   userId: string;
-
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
 }

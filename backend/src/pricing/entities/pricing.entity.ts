@@ -1,11 +1,10 @@
 import { Event } from "src/events/entities/event.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Tiers } from "../enums/pricing-tiers.enums";
+import { BaseEntity } from "src/model/base.entity";
 
 @Entity({ name: "pricings" })
-export class Pricing {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
+export class Pricing extends BaseEntity {
 
   @Column({ type: "uuid", nullable: false })
   eventId: string;

@@ -27,6 +27,7 @@ export class AuthorizationGuard implements CanActivate {
         }
 
         try {
+            console.log("user: ",request?.userId)
             const user = await this.authService.getUserPermissions(request?.userId);
             const userPermissions = user.permissions;
 

@@ -8,7 +8,7 @@ export class CreateRoleDto {
   @ApiProperty({
     description: "Role type for the user",
     enum: UserRole,
-    example: UserRole.CUSTOMER,
+    example: UserRole.ATTENDEE,
     required: true,
   })
   @IsEnum(UserRole, { message: "Role must be a valid UserRole enum value" })

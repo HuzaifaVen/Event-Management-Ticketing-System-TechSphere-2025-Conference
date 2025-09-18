@@ -10,6 +10,7 @@ import { Resources } from 'src/roles/enums/resources.enum';
 import { Actions } from 'src/roles/enums/actions.enum';
 import { FindAllEventsQueryDto } from './dto/find-eventsById.dto';
 import { ApiTags,ApiBearerAuth,ApiOperation, ApiBody, ApiResponse,ApiQuery,ApiParam} from '@nestjs/swagger';
+import { CurrentUserId } from 'src/decorators/current-user-id.decorator.dto';
 
 
 @ApiTags('Events') 
@@ -20,20 +21,19 @@ export class EventsController {
   constructor(
     private readonly eventsService: EventsService,
   ) { }
-
-  // Create Event (Organizer Only)
-
+  
+  
+    // Create Event (Organizer Only)
   @ApiOperation({ summary: 'Create a new event (Organizer only)' })
   @ApiBody({ type: CreateEventDto })
   @ApiResponse({ status: 201, description: 'Event created successfully' })
 
   @Permissions([{ roles: [UserRole.ORGANIZER], resource: Resources.EVENTS, actions: [Actions.WRITE] }])
   @Post("/create")
-  create(@Body() createEventDto: CreateEventDto, @Req() req: any) {
-    return this.eventsService.create(createEventDto, req.userId);
+  create(@Body() createEventDto: CreateEventDto, @CurrentUserId() userId:string) {
+    return this.eventsService.create(createEventDto,userId);
   }
-  
-  // Search All Events by specific location, pricing and user 
+
 
   @ApiOperation({
     summary: 'Get all events by logged-in user (Organizer/Admin)',
@@ -54,29 +54,21 @@ export class EventsController {
   })
   @ApiResponse({ status: 200, description: 'List of events retrieved' })
 
-  @Permissions([{ roles: [UserRole.ORGANIZER,UserRole.ADMIN,UserRole.CUSTOMER], resource: Resources.EVENTS, actions: [Actions.READ] }])
+
+
+  @Permissions([{ roles: [UserRole.ORGANIZER,UserRole.ADMIN,UserRole.ATTENDEE], resource: Resources.EVENTS, actions: [Actions.READ] }])
   @Get("/allById")
-  findAllId(@Req() req: any, @Query() query: FindAllEventsQueryDto) {
-    return this.eventsService.findAllById(req.userId, query)
+  findAllId(@CurrentUserId() userId: string , @Query() query: FindAllEventsQueryDto) {
+    return this.eventsService.findAllById(userId, query)
   }
 
-  // @ApiBearerAuth()
-  // @Get("/all")
-  // findAll(@Query() query: FindAllEventsQueryDto) {
-  //   return this.eventsService.findAll({
-  //     page: Number(page),
-  //     limit: Number(limit),
-  //     filters: { location, pricing }
-  //   })
-  // }
 
 
-  // Search Event By ID
   @ApiOperation({ summary: 'Get event by ID' })
   @ApiParam({ name: 'id', type: String, description: 'Event ID (UUID)' })
   @ApiResponse({ status: 200, description: 'Event retrieved successfully' })
 
-  @Permissions([{ roles: [UserRole.ORGANIZER,UserRole.ADMIN,UserRole.CUSTOMER], resource: Resources.EVENTS, actions: [Actions.READ] }])
+  @Permissions([{ roles: [UserRole.ORGANIZER,UserRole.ADMIN,UserRole.ATTENDEE], resource: Resources.EVENTS, actions: [Actions.READ] }])
   @Get("/:id")
   findOne(@Param("id") id: string) {
     return this.eventsService.findOne(id);
@@ -89,7 +81,7 @@ export class EventsController {
   @ApiResponse({ status: 200, description: 'Event updated successfully' })
 
   @Permissions([{ roles: [UserRole.ORGANIZER,UserRole.ADMIN], resource: Resources.EVENTS, actions: [Actions.UPDATE] }])
-  @Patch("/edit/:id")
+  @Patch("/:id")
   update(@Param('id') id: string, @Body() updateData: UpdateEventDto) {
     return this.eventsService.update(id, updateData);
   }
@@ -100,11 +92,8 @@ export class EventsController {
   @ApiResponse({ status: 200, description: 'Event deleted successfully' })
 
   @Permissions([{ roles: [UserRole.ORGANIZER,UserRole.ADMIN], resource: Resources.EVENTS, actions: [Actions.DELETE] }])
-  @Delete("/delete/:id")
-  delete(@Param('id') id: string, @Req() req: any) {
-    return this.eventsService.remove(id, req.userId)
+  @Delete("/:id")
+  delete(@Param('id') id: string, @CurrentUserId() userId: string) {
+    return this.eventsService.remove(id, userId)
   }
-
-
-
 }

@@ -50,11 +50,10 @@ export class SignUpDto {
   @ApiProperty({
     description: "Role to assign to the user",
     enum: UserRole,
-    example: UserRole.CUSTOMER,
+    example: UserRole.ATTENDEE,
     required: false,
   })
   @IsOptional()
   @IsEnum(UserRole, { message: AuthErrors.USER_ROLE_VALIDATION })
-  @Transform(({ value }) => value ?? UserRole.CUSTOMER)
   role: UserRole;
 }
