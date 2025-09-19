@@ -26,6 +26,7 @@ import type { AuthenticatedRequest } from './dto/authenticated-request.interface
 import { GoogleAuthQueryDto } from './dto/googleAuthQueryDto';
 import { RedirectGoogleUrl } from 'helpers/googleRedirectUrl.helper';
 import { CurrentUserId } from 'src/decorators/current-user-id.decorator.dto';
+import { USER_UPLOAD_PATH } from '../../constants/upload_paths';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -33,8 +34,6 @@ export class AuthController {
   private readonly logger = new Logger(AuthController.name);
   constructor(private readonly authService: AuthService) { }
 
-
-  //   Google OAuth Login
   @Get('google')
   googleAuth(@Query() query: GoogleAuthQueryDto, @Res() res: Response) {
     const { role } = query;
@@ -62,7 +61,7 @@ export class AuthController {
   @ApiConsumes("multipart/form-data")
   @ApiBody({ type: SignUpDto })
   @Post('signup')
-  @UseInterceptors(FileInterceptor('profileImg', createMulterOptions('uploads/users')))
+  @UseInterceptors(FileInterceptor('profileImg', createMulterOptions(USER_UPLOAD_PATH)))
   signUp(@Body() signUpDto: SignUpDto, @UploadedFile() file?: Express.Multer.File,) {
 
     return this.authService.signUp(signUpDto, file);

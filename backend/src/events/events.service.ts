@@ -10,6 +10,7 @@ import { EventErrors } from './constants/event.errors';
 import { AuthErrors } from 'src/auth/constants/auth.errors';
 import { EventMessages } from './constants/event.messages';
 import { FindOptionsWhere } from 'typeorm';
+import { EVENT_UPLOAD_PATH } from '../../constants/upload_paths';
 
 @Injectable()
 export class EventsService {
@@ -22,9 +23,11 @@ export class EventsService {
     private readonly pricingRepository: Repository<Pricing>,
   ) { }
 
-  async create(createEventDto: CreateEventDto, userId: string) {
+  async create(createEventDto: CreateEventDto, userId: string,file?:Express.Multer.File) {
     const existingEvent = await this.eventRepository.findOne({ where: { title: createEventDto.title } });
+
     if (existingEvent) throw new BadRequestException(EventErrors.EVENT_EXISTS);
+    const imagePath = file ? `/${EVENT_UPLOAD_PATH}/${file.filename}` : undefined;
 
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new BadRequestException(AuthErrors.USER_NOT_FOUND);
@@ -32,6 +35,7 @@ export class EventsService {
     try {
       const event = this.eventRepository.create({
         ...createEventDto,
+        image: imagePath,
         userId: user.id
       });
 

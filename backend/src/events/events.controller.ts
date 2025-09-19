@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -9,8 +9,11 @@ import { UserRole } from 'src/roles/enums/userRoles.dto';
 import { Resources } from 'src/roles/enums/resources.enum';
 import { Actions } from 'src/roles/enums/actions.enum';
 import { FindAllEventsQueryDto } from './dto/find-eventsById.dto';
-import { ApiTags,ApiBearerAuth,ApiOperation, ApiBody, ApiResponse,ApiQuery,ApiParam} from '@nestjs/swagger';
+import { ApiTags,ApiBearerAuth,ApiOperation, ApiBody, ApiResponse,ApiQuery,ApiParam, ApiConsumes} from '@nestjs/swagger';
 import { CurrentUserId } from 'src/decorators/current-user-id.decorator.dto';
+import { createMulterOptions } from 'src/config/multer.config';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { EVENT_UPLOAD_PATH } from '../../constants/upload_paths';
 
 
 @ApiTags('Events') 
@@ -25,13 +28,15 @@ export class EventsController {
   
     // Create Event (Organizer Only)
   @ApiOperation({ summary: 'Create a new event (Organizer only)' })
+  @ApiConsumes("multipart/form-data")
   @ApiBody({ type: CreateEventDto })
   @ApiResponse({ status: 201, description: 'Event created successfully' })
 
   @Permissions([{ roles: [UserRole.ORGANIZER], resource: Resources.EVENTS, actions: [Actions.WRITE] }])
   @Post("/create")
-  create(@Body() createEventDto: CreateEventDto, @CurrentUserId() userId:string) {
-    return this.eventsService.create(createEventDto,userId);
+  @UseInterceptors(FileInterceptor('profileImg', createMulterOptions(EVENT_UPLOAD_PATH)))
+  create(@Body() createEventDto: CreateEventDto, @CurrentUserId() userId:string,@UploadedFile() file?:Express.Multer.File) {
+    return this.eventsService.create(createEventDto,userId,file);
   }
 
 

@@ -10,6 +10,9 @@ export class Event extends BaseEntity{
   @Column({ type: 'uuid', nullable: false })
   userId: string;
 
+  @Column({ type: 'text', nullable: true })
+  image: string | null;
+
   @ManyToOne(() => User, (user) => user.id, { eager: false, nullable: true })
   @JoinColumn({ name: 'userId' })
   user?: User;

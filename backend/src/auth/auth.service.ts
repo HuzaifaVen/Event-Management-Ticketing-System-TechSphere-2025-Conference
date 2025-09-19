@@ -19,6 +19,7 @@ import { comparePasswords, hashPassword } from '../../helpers/password.helper';
 import { OAuthUserProfileDto } from './dto/Oauth-user-profile.dto';
 import { AuthMessages } from './constants/auth.messages';
 import { AuthErrors } from './constants/auth.errors';
+import { USER_UPLOAD_PATH } from '../../constants/upload_paths';
 
 
 @Injectable()
@@ -199,7 +200,7 @@ export class AuthService {
   ///Sign Up Function
   async signUp(signUpDto: SignUpDto, file?: Express.Multer.File) {
     const { name, email, password, role } = signUpDto;
-    const imagePath = file ? `/uploads/${file.filename}` : undefined;
+    const imagePath = file ? `/${USER_UPLOAD_PATH}/${file.filename}` : undefined;
 
     // 1. Check if user already exists
     const existingUser = await this.userRepository.findOne({ where: { email } });
