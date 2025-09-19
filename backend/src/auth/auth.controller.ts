@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body,Put, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, Put, Patch, Param, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -13,17 +13,20 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UserRole } from '../roles/enums/userRoles.dto';
 import { VerifyLoginDto } from './dto/verify-login.dto';
 import { Logger } from '@nestjs/common';
-import { ApiBearerAuth,ApiBody, ApiCreatedResponse, ApiOperation, ApiResponse,ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes } from '@nestjs/swagger';
 import { UploadedFile } from '@nestjs/common';
-import { diskStorage } from 'multer';
-import { join, extname } from 'path';
-import { createMulterOptions  } from '../config/multer.config';
-import { ReqUser } from './dto/req-user.decorator';
+import { createMulterOptions } from '../config/multer.config';
 import { OAuthUserProfileDto } from './dto/Oauth-user-profile.dto';
-
+import type { Response } from 'express';
+import { VerifyForgotPasswordOtpDto } from './dto/verify-forgotPassword-otp.dto';
+import type { AuthenticatedRequest } from './dto/authenticated-request.interface';
+import { GoogleAuthQueryDto } from './dto/googleAuthQueryDto';
+import { RedirectGoogleUrl } from 'helpers/googleRedirectUrl.helper';
+import { CurrentUserId } from 'src/decorators/current-user-id.decorator.dto';
+import { USER_UPLOAD_PATH } from '../../constants/upload_paths';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -31,57 +34,47 @@ export class AuthController {
   private readonly logger = new Logger(AuthController.name);
   constructor(private readonly authService: AuthService) { }
 
-
-  //   Google OAuth Login
-  @ApiOperation({ summary: 'Initiate Google OAuth Login' })
   @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req) {
-     this.logger.log('Google OAuth initiated');
+  googleAuth(@Query() query: GoogleAuthQueryDto, @Res() res: Response) {
+    const { role } = query;
+    const state = role ? Buffer.from(JSON.stringify({ role })).toString('base64') : undefined;
+    const googleUrl = RedirectGoogleUrl(state);
+    return res.redirect(googleUrl);
   }
 
-  //  Google OAuth Callback
-  @ApiOperation({ summary: 'Google OAuth Callback' })
-  @ApiResponse({ status: 200, description: 'OAuth Login successful' })
   @Get('google/callback')
+  @ApiOperation({ summary: 'Google OAuth Callback' })
   @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@ReqUser(OAuthUserProfileDto) profile: OAuthUserProfileDto) {
-  this.logger.log('Google OAuth callback triggered');
-  return this.authService.validateOAuthLogin(profile, profile.provider, UserRole.CUSTOMER);
-}
+  async googleAuthRedirect(@Req() req: AuthenticatedRequest, @Res() res: Response) {
+    this.logger.log('Google OAuth callback triggered');
 
-  
+    const redirectUrl = await this.authService.handleGoogleCallback(req.user);
+
+    return res.redirect(redirectUrl);
+  }
+
+
   // SignUp New User
-  
-  @ApiOperation({summary:"Signing Up new User"})
-  @ApiCreatedResponse({description: "Signed Up", type: SignUpDto})
-  @ApiConsumes("multipart/form-data") 
-  @ApiBody({ type: SignUpDto }) 
+
+  @ApiOperation({ summary: "Signing Up new User" })
+  @ApiCreatedResponse({ description: "Signed Up", type: SignUpDto })
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({ type: SignUpDto })
   @Post('signup')
-  @UseInterceptors(FileInterceptor('profileImg', createMulterOptions('uploads/users')))
-  signUp(@Body() signUpDto: SignUpDto,@UploadedFile() file?: Express.Multer.File,) {
-    
-    return this.authService.signUp(signUpDto,file);
+  @UseInterceptors(FileInterceptor('profileImg', createMulterOptions(USER_UPLOAD_PATH)))
+  signUp(@Body() signUpDto: SignUpDto, @UploadedFile() file?: Express.Multer.File,) {
+
+    return this.authService.signUp(signUpDto, file);
   }
 
 
   // Login User
-  @ApiOperation({summary: "Login User"})
-  @ApiCreatedResponse({description:"Logged In", type: LoginDto})
+  @ApiOperation({ summary: "Login User" })
+  @ApiCreatedResponse({ description: "Logged In", type: LoginDto })
   @Post('login')
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
-
-  // @Post('refresh')
-  // async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto){
-  //   return this.authService.refreshTokens(refreshTokenDto.refreshToken);
-  // }
-
-  // @Post('generate-otp')
-  // async generateOtp(@Body("email") email: string){
-  //   return this.authService.sendOtpMail(email)
-  // }
 
   // Verify OTP After Login
   @ApiOperation({ summary: 'Verify Login OTP' })
@@ -98,8 +91,15 @@ export class AuthController {
   @UseGuards(AuthenticationGuard)
   @ApiBearerAuth()
   @Patch('change-password')
-  async changePassword(@Body() changePasswordDto: ChangePasswordDto, @Req() req){
-    return await this.authService.changePassword(changePasswordDto,  req.userId);
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto, @CurrentUserId() userId: string) {
+    return await this.authService.changePassword(changePasswordDto, userId);
+  }
+
+  @ApiOperation({ summary: 'Verify OTP for forgot-password flow' })
+  @ApiBody({ type: VerifyForgotPasswordOtpDto })
+  @Post('verify-forgot-password-otp')
+  async verifyForgotPasswordOtp(@Body() dto: VerifyForgotPasswordOtpDto) {
+    return await this.authService.verifyForgotPasswordOtp(dto);
   }
 
 
@@ -107,7 +107,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Request password reset link' })
   @ApiBody({ type: ForgotPasswordDto })
   @Patch('forgot-password')
-  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto ){
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return await this.authService.forgotPassword(forgotPasswordDto);
   }
 
@@ -115,7 +115,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Reset password using token' })
   @ApiBody({ type: ResetPasswordDto })
   @Patch('reset-password')
-  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto){
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return await this.authService.resetPassword(resetPasswordDto)
   }
 

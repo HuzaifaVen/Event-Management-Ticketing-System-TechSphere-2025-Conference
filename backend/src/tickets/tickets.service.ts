@@ -12,11 +12,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { Event } from '../events/entities/event.entity';
 import { TicketErrors } from './constants/ticket.errors';
 import { TicketMessages } from './constants/ticket.messages';
+<<<<<<< HEAD
 import { User } from '../users/entities/user.entity';
 import { Pricing } from '../pricing/entities/pricing.entity';
 import { Parser } from 'json2csv';
 import { Response } from 'express';
 import { EventErrors } from '../events/constants/event.errors';
+=======
+import { User } from 'src/users/entities/user.entity';
+import { Pricing } from 'src/pricing/entities/pricing.entity';
+import { EventErrors } from 'src/events/constants/event.errors';
+>>>>>>> ac44b6d7b15ae1e86bae229d45c3aabb71f96157
 
 @Injectable()
 export class TicketsService {
@@ -41,7 +47,11 @@ export class TicketsService {
     for (const event of events) {
       const tickets = await this.ticketRepository.find({
         where: { event: { id: event.id } },
+<<<<<<< HEAD
         relations: ['event'], 
+=======
+        relations: ['event'],
+>>>>>>> ac44b6d7b15ae1e86bae229d45c3aabb71f96157
       });
 
       if (!tickets.length) continue;
@@ -50,8 +60,6 @@ export class TicketsService {
       const mappedTickets = tickets.map((ticket) => ({
         ticketId: ticket.id,
         userId: ticket.userId,
-        // userName: ticket.user.name,
-        // userEmail: ticket.user.email,
         eventName: ticket.event.title,
         pricingId: ticket.pricingId,
         isUsed: ticket.isUsed,
@@ -66,27 +74,25 @@ export class TicketsService {
 
     return allTickets;
   }
-  async exportTickets(userId: string, res: Response) {
-  const tickets = await this.fetchTickets(userId);
+  async exportTickets(userId: string) {
+    const tickets = await this.fetchTickets(userId);
 
-  // CSV header
-  const header = 'ticketId,userId,eventName,pricingId';
+    // CSV header
+    const header = 'ticketId,userId,eventName,pricingId';
 
-  // CSV body
-  const csvRows = tickets.map(
-    t => `${t.ticketId},${t.userId},${t.eventName},${t.pricingId}`
-  );
+    // CSV body
+    const csvRows = tickets.map(
+      t => `${t.ticketId},${t.userId},${t.eventName},${t.pricingId}`
+    );
 
-  const csv = [header, ...csvRows].join('\n');
+    const csv = [header, ...csvRows].join('\n');
 
-  res
-    .setHeader('Content-Type', 'text/csv')
-    .setHeader('Content-Disposition', 'attachment; filename="tickets.csv"')
-    .status(200)
-    .send(csv);
-}
+    return {
+      filename: "tickets.csv",
+      data: csv
+    }
 
-
+  }
 
   async fetchTicketsByCategory(evenId: string) {
     const tickets = await this.ticketRepository.find({ where: { eventId: evenId } })
@@ -99,7 +105,7 @@ export class TicketsService {
         where: { id: ticket.pricingId },
       });
 
-      if (!pricing) continue; // skip if pricing not found
+      if (!pricing) continue; 
 
       const tier = pricing.tier; 
 
@@ -111,13 +117,23 @@ export class TicketsService {
       categorized[tier].count += 1;
     }
 
+<<<<<<< HEAD
     return categorized;
+=======
+    return {message: TicketMessages
+      ,categorized: categorized};
+>>>>>>> ac44b6d7b15ae1e86bae229d45c3aabb71f96157
   }
 
   async create(createTicketDto: CreateTicketDto, userId: any) {
     const { eventId } = createTicketDto;
+<<<<<<< HEAD
     const event = await this.eventRepository.findOne({where:{id:eventId}})
     if(!event) throw new NotFoundException(EventErrors.EVENT_NOT_EXIST)
+=======
+    const event = this.eventRepository.findOne({ where: { id: eventId } })
+    if (!event) throw new NotFoundException(EventErrors.EVENT_NOT_EXIST)
+>>>>>>> ac44b6d7b15ae1e86bae229d45c3aabb71f96157
 
     const existingTicket = await this.ticketRepository.findOne({
       where: { event: { id: eventId }, userId },
@@ -132,21 +148,17 @@ export class TicketsService {
       ...createTicketDto,
       qrCode: qrPayload,
     });
-    const pricing = await this.pricingRepository.findOne({where:{id:ticket.pricingId}})
-    if(!pricing) throw new NotFoundException(TicketErrors.TICKET_NOT_FOUND)
-    pricing.soldTickets +=1 ;
-    
+    const pricing = await this.pricingRepository.findOne({ where: { id: ticket.pricingId } })
+    if (!pricing) throw new NotFoundException(TicketErrors.TICKET_NOT_FOUND)
+    pricing.soldTickets += 1;
+
     const savedTicket = await this.ticketRepository.save(ticket);
     await this.pricingRepository.save(pricing);
-  
+
     return {
       message: `${TicketMessages.TICKET_CREATED} for user ${userId}`,
       ticket: savedTicket,
     };
-  }
-
-  findAll() {
-    return `This action returns all tickets`;
   }
 
   async findEvents(eventId: string) {
@@ -160,10 +172,10 @@ export class TicketsService {
     };
   }
 
-  async getTicketByEventId(id: string){
-    const tickets = await this.ticketRepository.find({where:{event:{id}}})
-    if(!tickets) return {message: []}
-    return {message: TicketMessages.TICKETS_FETCHED , tickets}
+  async getTicketByEventId(id: string) {
+    const tickets = await this.ticketRepository.find({ where: { event: { id } } })
+    if (!tickets) return { message: [] }
+    return { message: TicketMessages.TICKETS_FETCHED, tickets }
   }
 
   async deleteTicket(id: string) {
@@ -182,14 +194,15 @@ export class TicketsService {
     ticket.isUsed = true;
     await this.ticketRepository.save(ticket);
 
-    return { message: TicketMessages.TICKET_APPROVED,ticket };
+    return { message: TicketMessages.TICKET_APPROVED, ticket };
   }
 
-  update(id: number, updateTicketDto: UpdateTicketDto) {
-    return `This action updates a #${id} ticket`;
-  }
 
-  remove(id: number) {
-    return `This action removes a #${id} ticket`;
+  async remove(id: string) {
+    const deletedTicket = await this.ticketRepository.delete({id})
+    if(!deletedTicket){
+      throw new BadRequestException(TicketErrors.DELETE_FAILED)
+    }
+    return {messsage: TicketMessages.TICKET_DELETED}
   }
 }

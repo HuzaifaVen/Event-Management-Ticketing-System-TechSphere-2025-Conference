@@ -17,15 +17,6 @@ export class ResetPasswordDto {
   email: string;
 
   @ApiProperty({
-    description: 'OTP code sent to the user',
-    example: '232423',
-    required: true,
-  })
-  @IsString({ message: OtpErrors.VALID_OTP})
-  @IsNotEmpty({ message: OtpErrors.OTP_REQUIRED })
-  otp: string;
-
-  @ApiProperty({
     description: 'New password for the user',
     example: 'plaw12!@',
     required: true,

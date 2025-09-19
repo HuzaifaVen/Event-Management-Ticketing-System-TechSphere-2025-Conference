@@ -6,6 +6,7 @@ import { CreateRoleDto } from "./dto/roles.dto";
 import { User } from "../users/entities/user.entity";
 import { DefaultRolePermissions } from "./dto/permissions.default";
 import { RoleErrors } from "./constants/roles.errors";
+import { RolesMessage } from "./constants/roles.messages";
 
 @Injectable()
 
@@ -42,7 +43,7 @@ export class RoleServices {
 
         role.permissions = dto.permissions;
         await this.rolesRepository.save(role);
-        return role
+        return {message: RolesMessage.ROLE_UPDATED_SUCCESS, role:role}
         
     }
 }

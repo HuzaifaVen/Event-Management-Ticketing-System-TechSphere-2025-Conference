@@ -2,13 +2,11 @@ import { UserRole } from "../../roles/enums/userRoles.dto";
 import { Column, OneToOne, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { Roles } from "../../roles/entities/roles.entity";
 import { JoinColumn } from "typeorm";
+import { BaseEntity } from "src/model/base.entity";
 
 
 @Entity({ name: 'users' })
-export class User {
-    @PrimaryGeneratedColumn('uuid')
-    id: string
-
+export class User extends BaseEntity{
     @Column()
     name: string
 

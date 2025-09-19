@@ -1,20 +1,6 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/": {
-      "get": {
-        "operationId": "AppController_someProtectedRoutes",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "App"
-        ]
-      }
-    },
     "/stripe/products": {
       "get": {
         "operationId": "StripeController_getProducts",
@@ -190,7 +176,6 @@
             "description": ""
           }
         },
-        "summary": "Initiate Google OAuth Login",
         "tags": [
           "Auth"
         ]
@@ -202,7 +187,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "OAuth Login successful"
+            "description": ""
           }
         },
         "summary": "Google OAuth Callback",
@@ -333,6 +318,31 @@
         ]
       }
     },
+    "/auth/verify-forgot-password-otp": {
+      "post": {
+        "operationId": "AuthController_verifyForgotPasswordOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyForgotPasswordOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Verify OTP for forgot-password flow",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/auth/forgot-password": {
       "patch": {
         "operationId": "AuthController_forgotPassword",
@@ -384,41 +394,6 @@
       }
     },
     "/roles/{id}": {
-      "get": {
-        "operationId": "RolesController_findRoleById",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Role ID (UUID)",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns role details",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetRolesDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Role not found"
-          }
-        },
-        "summary": "Get role by ID",
-        "tags": [
-          "Roles"
-        ]
-      }
-    },
-    "/roles/updateRole/{id}": {
       "put": {
         "operationId": "RolesController_updateRoleById",
         "parameters": [
@@ -710,9 +685,7 @@
         "tags": [
           "Events"
         ]
-      }
-    },
-    "/events/edit/{id}": {
+      },
       "patch": {
         "operationId": "EventsController_update",
         "parameters": [
@@ -750,9 +723,7 @@
         "tags": [
           "Events"
         ]
-      }
-    },
-    "/events/delete/{id}": {
+      },
       "delete": {
         "operationId": "EventsController_delete",
         "parameters": [
@@ -1109,10 +1080,10 @@
             "description": "Role to assign to the user",
             "enum": [
               "organizer",
-              "customer",
+              "attendee",
               "admin"
             ],
-            "example": "customer"
+            "example": "attendee"
           }
         },
         "required": [
@@ -1176,6 +1147,25 @@
           "newPassword"
         ]
       },
+      "VerifyForgotPasswordOtpDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com",
+            "description": "Email of the user requesting password reset"
+          },
+          "otp": {
+            "type": "string",
+            "example": "123456",
+            "description": "6-digit OTP sent to user email"
+          }
+        },
+        "required": [
+          "email",
+          "otp"
+        ]
+      },
       "ForgotPasswordDto": {
         "type": "object",
         "properties": {
@@ -1197,11 +1187,6 @@
             "description": "Email of the user resetting password",
             "example": "abdullah12@gmail.com"
           },
-          "otp": {
-            "type": "string",
-            "description": "OTP code sent to the user",
-            "example": "232423"
-          },
           "password": {
             "type": "string",
             "description": "New password for the user",
@@ -1210,21 +1195,7 @@
         },
         "required": [
           "email",
-          "otp",
           "password"
-        ]
-      },
-      "GetRolesDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Role ID for the user",
-            "example": "f9f0b7f3-f332-4246-8460-ae7b6491e40f"
-          }
-        },
-        "required": [
-          "id"
         ]
       },
       "Permission": {

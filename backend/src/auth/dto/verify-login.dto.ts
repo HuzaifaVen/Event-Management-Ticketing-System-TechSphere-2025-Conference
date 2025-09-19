@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsString, IsNotEmpty } from "class-validator";
 import { OtpErrors } from "../../otp/constants/otp.errors";
 import { AuthMessages } from "../constants/auth.messages";
+import { Length } from "class-validator";
 
 export class VerifyLoginDto {
   @ApiProperty({
@@ -20,5 +21,6 @@ export class VerifyLoginDto {
   })
   @IsString({ message: OtpErrors.VALID_OTP})
   @IsNotEmpty({ message: OtpErrors.OTP_REQUIRED })
+  @Length(6,6, { message: 'OTP must be between 4 and 8 characters' })
   otp: string;
 }

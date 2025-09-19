@@ -3,11 +3,9 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OtpRequest } from './entities/otp.entity';
-import * as crypto from 'crypto';
-import * as bcrypt from 'bcryptjs';
 import { OtpMessages } from './constants/otp.messages';
 import { OtpErrors } from './constants/otp.errors';
-import * as otpUtils from './utils/generate-otp';
+import { compareOtp, hashOtp, otpGenerator } from 'helpers/otp-generator.helper';
 
 @Injectable()
 export class OtpService {
@@ -21,14 +19,13 @@ export class OtpService {
   await this.otpRepository.delete({ email });
 
   // Generate new OTP
-  const otpPlain =  otpUtils.generateOtp();
-
-  const hashedOtp = await bcrypt.hash(otpPlain.toString(), 10);
+  const otpPlain = otpGenerator(); // 6 digits
+  const hashedOtp = await hashOtp(otpPlain, 10);
 
   const otpRecord = this.otpRepository.create({
     email,
     otp: hashedOtp,
-    expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 min
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000), 
   });
 
   await this.otpRepository.save(otpRecord);
@@ -43,7 +40,7 @@ export class OtpService {
   if (!otpRecord) throw new BadRequestException(OtpErrors.OTP_NOT_FOUND);
   if (otpRecord.expiresAt < new Date()) throw new BadRequestException(OtpErrors.OTP_EXPIRED);
 
-  const isMatch = await bcrypt.compare(otp, otpRecord.otp);
+  const isMatch = await compareOtp(otp,otpRecord.otp);
   if (!isMatch) throw new BadRequestException(OtpErrors.INVALID_OTP);
 
   otpRecord.verified = true;

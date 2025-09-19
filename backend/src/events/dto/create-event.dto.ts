@@ -4,6 +4,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { CreatePricingDto } from "../../pricing/dto/create-pricing.dto";
 import { Tiers } from "../../pricing/enums/pricing-tiers.enums";
 import { EventErrors } from "../constants/event.errors";
+import { AuthErrors } from "src/auth/constants/auth.errors";
 
 export class CreateEventDto {
   @ApiProperty({
@@ -11,9 +12,19 @@ export class CreateEventDto {
     example: "AI Confer 2025",
     required: true,
   })
-  @IsString({ message: EventErrors.VALID_TITLE})
+  @IsString({ message: EventErrors.VALID_TITLE })
   @IsNotEmpty({ message: EventErrors.REQUIRED_TITLE })
   title: string;
+
+  @ApiProperty({
+    description: "URL or file path for the user's profile image",
+    example: "/uploads/user123.png",
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString({ message: AuthErrors.VALID_PROFILE })
+  profileImg?: string;
 
   @ApiProperty({
     description: "Description of the event",
@@ -30,7 +41,7 @@ export class CreateEventDto {
     required: true,
   })
   @Type(() => Date)
-  @IsDate({ message: EventErrors.VALID_START_DATE})
+  @IsDate({ message: EventErrors.VALID_START_DATE })
   startDateTime: Date;
 
   @ApiProperty({
@@ -57,8 +68,9 @@ export class CreateEventDto {
     example: "123 Main Street, Cityville",
     required: true,
   })
-  @IsString({ message: EventErrors.VALID_LOCATION
-   })
+  @IsString({
+    message: EventErrors.VALID_LOCATION
+  })
   @IsNotEmpty({ message: EventErrors.REQUIRED_LOCATION })
   location: string;
 

@@ -1,9 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, Res, StreamableFile } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
+<<<<<<< HEAD
 import { AuthenticationGuard } from '../guards/auth.guard';
 import { AuthorizationGuard } from '../guards/authorization.guard';
 
+=======
+import { AuthenticationGuard } from 'src/guards/auth.guard';
+import { AuthorizationGuard } from 'src/guards/authorization.guard';
+import { CurrentUserId } from 'src/decorators/current-user-id.decorator.dto';
+>>>>>>> ac44b6d7b15ae1e86bae229d45c3aabb71f96157
 
 import {
   ApiBearerAuth,
@@ -19,14 +25,14 @@ import { ScanByQrDto } from './dto/scan-qrcode.dto';
 @UseGuards(AuthenticationGuard, AuthorizationGuard)
 @Controller('tickets')
 export class TicketsController {
-  constructor(private readonly ticketsService: TicketsService) {}
+  constructor(private readonly ticketsService: TicketsService) { }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate a new ticket' })
   @ApiResponse({ status: 201, description: 'Ticket generated successfully' })
   @Post('/generate-ticket')
-  create(@Body() createTicketDto: CreateTicketDto, @Req() req: any) {
-    return this.ticketsService.create(createTicketDto, req.userId);
+  create(@Body() createTicketDto: CreateTicketDto, @CurrentUserId() userId: string) {
+    return this.ticketsService.create(createTicketDto, userId);
   }
 
   @ApiBearerAuth()
@@ -50,10 +56,14 @@ export class TicketsController {
   @ApiOperation({ summary: 'Export tickets as CSV/Excel' })
   @ApiResponse({ status: 200, description: 'Tickets exported successfully' })
   @Get('/exportTickets')
-  async exportTickets(@Req() req: any, @Res() res: any) {
-    const userId = req.userId;
-    if (!userId) return res.status(401).send('Unauthorized');
-    await this.ticketsService.exportTickets(userId, res);
+  async exportTickets(@CurrentUserId() userId: string): Promise<StreamableFile> {
+    const { filename, data } = await this.ticketsService.exportTickets(userId);
+
+    const buffer = Buffer.from(data, 'utf-8');
+    return new StreamableFile(buffer, {
+      type: 'text/csv',
+      disposition: `attachment; filename="${filename}"`,
+    });
   }
 
   @ApiBearerAuth()
@@ -69,8 +79,8 @@ export class TicketsController {
   @ApiOperation({ summary: 'Fetch all tickets for logged-in user' })
   @ApiResponse({ status: 200, description: 'Tickets fetched successfully' })
   @Get('/fetchTickets')
-  fetchTickets(@Req() req: any) {
-    return this.ticketsService.fetchTickets(req.userId);
+  fetchTickets(@CurrentUserId() userId: string) {
+    return this.ticketsService.fetchTickets(userId);
   }
 
   @ApiBearerAuth()
@@ -88,6 +98,6 @@ export class TicketsController {
   @ApiResponse({ status: 200, description: 'Ticket removed successfully' })
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.ticketsService.remove(+id);
+    return this.ticketsService.remove(id);
   }
 }

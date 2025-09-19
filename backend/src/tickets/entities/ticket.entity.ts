@@ -1,11 +1,14 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+<<<<<<< HEAD
 import { Event } from "../../events/entities/event.entity";
+=======
+import { Event } from "src/events/entities/event.entity";
+import { BaseEntity } from "src/model/base.entity";
+>>>>>>> ac44b6d7b15ae1e86bae229d45c3aabb71f96157
 
 @Entity("tickets")
-export class Ticket {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
-
+export class Ticket extends BaseEntity {
+  
   @Column({ type: "uuid", nullable: false })
   userId: string;
 

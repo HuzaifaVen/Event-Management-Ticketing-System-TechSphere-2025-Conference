@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePricingDto } from './dto/create-pricing.dto';
-import { UpdatePricingDto } from './dto/update-pricing.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pricing } from './entities/pricing.entity';
@@ -24,19 +23,4 @@ export class PricingService {
   return { message: PricingMessages.PRICING_CREATED_SUCESS };
 }
 
-  // findAll() {
-  //   return `This action returns all pricing`;
-  // }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} pricing`;
-  // }
-
-  update(id: string, updatePricingDto: UpdatePricingDto) {
-    return `This action updates a #${id} pricing`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} pricing`;
-  }
 }

@@ -5,7 +5,7 @@ import { Actions } from "../enums/actions.enum";
 import { Permission } from "../dto/permissions.dto";
 
 export const DefaultRolePermissions: Record<UserRole, Permission[]> = {
-  [UserRole.CUSTOMER]: [
+  [UserRole.ATTENDEE]: [
     {
       resource: Resources.EVENTS,
       actions: [Actions.READ,Actions.READ], 

@@ -1,15 +1,17 @@
 import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Pricing } from '../../pricing/entities/pricing.entity';
-import { Ticket } from '../../tickets/entities/ticket.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Pricing } from 'src/pricing/entities/pricing.entity';
+import { Ticket } from 'src/tickets/entities/ticket.entity';
+import { BaseEntity } from 'src/model/base.entity';
 
 @Entity('events')
-export class Event {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Event extends BaseEntity{
+  
   @Column({ type: 'uuid', nullable: false })
   userId: string;
+
+  @Column({ type: 'text', nullable: true })
+  image: string | null;
 
   @ManyToOne(() => User, (user) => user.id, { eager: false, nullable: true })
   @JoinColumn({ name: 'userId' })

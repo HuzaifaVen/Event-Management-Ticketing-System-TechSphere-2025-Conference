@@ -20,11 +20,11 @@ export class OAuthUserProfileDto {
   @IsNotEmpty({ message: AuthErrors.NAME_IS_REQUIRED })
   displayName: string;
 
-  @ApiProperty({ type: [EmailDto], description: 'List of emails', required: true })
+  @ApiProperty({ type: EmailDto, description: 'email', required: true })
   @IsArray()
-  @ValidateNested({ each: true })
+  @ValidateNested()
   @Type(() => EmailDto)
-  emails: EmailDto[];
+  email: EmailDto;
 
   @ApiProperty({ description: 'OAuth provider', example: 'google', required: true })
   @IsString()
